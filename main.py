@@ -517,7 +517,7 @@ def doGuildDonation():
 
     if supportResearch != None:
         x, y = supportResearch
-        logging.info("[Charac]: <" + str(states["currentCharacter"]) + ">: " + "supportResearch")
+        logging.info("[Charac]: <" + str(states["currentCharacter"]) + ">: " + "[GuildDonation]: supportResearch")
         mouseMoveTo(x=x, y=y)
         sleep(500, 600)
         pydirectinput.click(button="left")
@@ -586,7 +586,7 @@ def doIvnaDaily():
 
     # finish quest #1
     pydirectinput.press("5")
-    sleep(1500, 2000)
+    sleep(2500, 2500)
     quest1_key_list = [[1698,347],[1475,413],[920,675],[1650,420],[356,772]]
     i = 0
     for key in quest1_key_list:
