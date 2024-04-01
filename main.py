@@ -120,7 +120,7 @@ def main():
 
                     # back to city
                     pydirectinput.press("f3")
-                    sleep(10000, 12000)
+                    sleep(20000, 22000)
 
                     # finish all characters' daily and switch to character #1 to desire island
                     states["multiCharacterMode"] = False
@@ -151,7 +151,7 @@ def main():
 
                     # back to Masyaf
                     pydirectinput.press("f2")
-                    sleep(10000, 12000)
+                    sleep(20000, 22000)
 
                     # switch to the next character
                     nextIndex = (states["currentCharacter"] + 1) % len(
@@ -476,7 +476,9 @@ def doGuildDonation():
     sleep(4100, 5200)
 
     ok = pyautogui.locateCenterOnScreen(
-        "./screenshots/ok.png", region=config["regions"]["center"], confidence=0.75
+        "./screenshots/ok.png",
+        region=config["regions"]["center"],
+        confidence=0.75
     )
 
     if ok != None:
@@ -598,7 +600,7 @@ def doIvnaDaily():
         pydirectinput.click(x=x, y=y, button="left")
         sleep(1020, 1200)
         if i == 3:
-            sleep(10000, 12000)
+            sleep(20000, 22000)
     rainbow = pyautogui.locateCenterOnScreen(
         "./screenshots/rainbow-interface.png",
         confidence=0.7,
@@ -619,7 +621,7 @@ def doIvnaDaily():
         sleep(1020, 1200)
         pydirectinput.click(x=x, y=y, button="left")
         sleep(1020, 1200)
-    sleep(10000, 12000)
+    sleep(20000, 22000)
     pydirectinput.press("f4")
     sleep(20000, 22000)
     pydirectinput.press("f4")
@@ -810,7 +812,7 @@ def switchToCharacter(index):
     states["abilityScreenshots"] = []
 
     # wait black screen
-    sleep(10000, 15000)
+    sleep(20000, 22000)
 
 
 def needDoWeeklyQuest():
