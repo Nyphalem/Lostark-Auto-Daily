@@ -119,7 +119,7 @@ def main():
                         update_status_value(config_file_path, 'need_do_weeklyQuest', False)
 
                     # back to city
-                    pydirectinput.press("f3")
+                    pydirectinput.press("f2")
                     sleep(20000, 22000)
 
                     # finish all characters' daily and switch to character #1 to desire island
@@ -588,7 +588,7 @@ def doIvnaDaily():
 
     # finish quest #1
     pydirectinput.press("5")
-    sleep(2500, 2500)
+    sleep(3000, 3500)
     quest1_key_list = [[1698,347],[1475,413],[920,675],[1650,420],[356,772]]
     i = 0
     for key in quest1_key_list:
