@@ -56,7 +56,10 @@ def main():
     # Instantiate the parser
     parser = argparse.ArgumentParser(description="Optional app description")
     parser.add_argument("--all", action="store_true", help="A boolean switch")
+    parser.add_argument("--skip", action="store_true", help="A boolean switch")
     args = parser.parse_args()
+
+    skip_desire = False
 
     # cold init
     sleep(5000, 5500)
@@ -75,6 +78,9 @@ def main():
                 states["multiCharacterModeState"]
             )
         )
+
+    if args.skip:
+        skip_desire = True
 
     # Farm in Masyaf
     print("------------------------------------")
@@ -126,7 +132,10 @@ def main():
                     states["multiCharacterMode"] = False
                     states["multiCharacterModeState"] = []
                     sleep(3400, 3600)
-                    switchToCharacter(1)
+                    if skip_desire:
+                        switchToCharacter(0)
+                    else:
+                        switchToCharacter(1)
                     sleep(3400, 3600)
 
                     print("------------------------------------")
@@ -185,20 +194,18 @@ def main():
 
             # 生命周期最后：最后切换的账号无限刷
             if not states["multiCharacterMode"]:
-                # desire
-                desire_island_key_list = [[1698,347],[1475,576],[920,675]]
-                for key in desire_island_key_list:
-                    x = key[0]
-                    y = key[1]
-                    mouseMoveTo(x=x, y=y)
-                    sleep(1020, 1200)
-                    pydirectinput.click(x=x, y=y, button="left")
-                    sleep(1020, 1200)
-                desire.desire()
-                # 结束无限刷后，切回主角色，递归调用重新尝试开始日常
-                sleep(3400, 3600)
-                switchToCharacter(config["mainCharacter"])
-                break
+                if not skip_desire:
+                    desire_island_key_list = [[1698,347],[1475,576],[920,675]]
+                    for key in desire_island_key_list:
+                        x = key[0]
+                        y = key[1]
+                        mouseMoveTo(x=x, y=y)
+                        sleep(1020, 1200)
+                        pydirectinput.click(x=x, y=y, button="left")
+                        sleep(1020, 1200)
+                    desire.desire()
+                    sleep(3400, 3600)
+                return
 
             # save instance start time
             states["instanceStartTime"] = int(time.time_ns() / 1000000)
@@ -265,8 +272,6 @@ def main():
                 continue
             doFloor3()
         '''
-
-    main()
 
 
 #===========================================================================
