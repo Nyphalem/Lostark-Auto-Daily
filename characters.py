@@ -39,4 +39,9 @@ characters = [
         "class": "west",
         "ilvl-aor": 1370,
     },
+    {
+        "index": 8,
+        "class": "slayer",
+        "ilvl-aor": 1370,
+    },
 ]

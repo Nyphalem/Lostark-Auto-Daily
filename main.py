@@ -119,8 +119,7 @@ def main():
                     # weekly quest
                     if needDoWeeklyQuest():
                         acceptIvnaWeekly()
-                        acceptGuildCube()
-                        acceptGuildVoyage()
+                        acceptGuildQuest()
                         doGuildVoyage()
                         update_status_value(config_file_path, 'need_do_weeklyQuest', False)
 
@@ -154,8 +153,7 @@ def main():
                     # weekly quest
                     if needDoWeeklyQuest():
                         acceptIvnaWeekly()
-                        acceptGuildCube()
-                        acceptGuildVoyage()
+                        acceptGuildQuest()
                         doGuildVoyage()
 
                     # back to Masyaf
@@ -645,41 +643,167 @@ def doIvnaDaily():
 
 
 def acceptIvnaWeekly():
-    if states["currentCharacter"] == 6 or states["currentCharacter"] == 7:
-        return
-    logging.info("TODO: acceptIvnaWeekly")
+    logging.info("[Charac]: <" + str(states["currentCharacter"]) + ">: " + "[IvnaWeekly]: {accpet}")
+    sleep(300, 400)
+    pydirectinput.keyDown("alt")
+    sleep(300, 400)
+    pydirectinput.press("j")
+    sleep(300, 400)
+    pydirectinput.keyUp("alt")
+    sleep(4100, 5200)
+
+    # accept quest
+    acceptQuest_key_list = [[583,193],[1280,360],[1280,440],[1280,513]]
+    for key in acceptQuest_key_list:
+        x = key[0]
+        y = key[1]
+        mouseMoveTo(x=x, y=y)
+        sleep(300, 400)
+        pydirectinput.click(x=x, y=y, button="left")
+        sleep(300, 400)
+    pydirectinput.press("esc")
+    sleep(2000, 2500)
 
     return
 
 
-def acceptGuildCube():
-    if states["currentCharacter"] == 6 or states["currentCharacter"] == 7:
-        return
-    logging.info("TODO: acceptGuildCube")
-    if True:
-        logging.info("not set guild quest already")
-        manageGuildQuest()
+def acceptGuildQuest():
+    logging.info("[Charac]: <" + str(states["currentCharacter"]) + ">: " + "[GuildQuest]: {accpet}")
+    sleep(300, 400)
+    pydirectinput.keyDown("alt")
+    sleep(300, 400)
+    pydirectinput.press("j")
+    sleep(300, 400)
+    pydirectinput.keyUp("alt")
+    sleep(4100, 5200)
+
+    # TODO: check have cube
+    #logging.info("not set guild quest already")
+    #manageGuildQuest()
+
+    # accept quest
+    acceptQuest_key_list = [[890,193],[1280,516],[1280,593],[1280,666]]
+    for key in acceptQuest_key_list:
+        x = key[0]
+        y = key[1]
+        mouseMoveTo(x=x, y=y)
+        sleep(300, 400)
+        pydirectinput.click(x=x, y=y, button="left")
+        sleep(800, 900)
+    pydirectinput.press("esc")
+    sleep(2000, 2500)
+
     return
 
 
 def manageGuildQuest():
-    if states["currentCharacter"] == 6 or states["currentCharacter"] == 7:
-        return
     logging.info("TODO: manageGuildQuest")
     return
 
 
-def acceptGuildVoyage():
-    if states["currentCharacter"] == 6 or states["currentCharacter"] == 7:
-        return
-    logging.info("TODO: acceptGuildVoyage")
-    return
-
-
 def doGuildVoyage():
-    if states["currentCharacter"] == 6 or states["currentCharacter"] == 7:
+    if states["currentCharacter"] == 1:
         return
-    logging.info("TODO: doGuildVoyage")
+    logging.info("[Charac]: <" + str(states["currentCharacter"]) + ">: " + "[GuildVoyage]: {start}")
+
+    # complete guild voyage
+    sleep(3000, 3500)
+    quest1_key_list = [[1698,347],[1475,585],[920,675]]
+    i = 0
+    for key in quest1_key_list:
+        i += 1
+        x = key[0]
+        y = key[1]
+        mouseMoveTo(x=x, y=y)
+        sleep(1200, 1400)
+        pydirectinput.click(x=x, y=y, button="left")
+        sleep(1200, 1400)
+        if i == 3:
+            sleep(20000, 22000)
+    rainbow = pyautogui.locateCenterOnScreen(
+        "./screenshots/rainbow-interface.png",
+        confidence=0.7,
+        grayscale=True
+    )
+    if not rainbow == None:
+        pydirectinput.press("esc")
+        sleep(800, 900)
+
+    pydirectinput.press("m")
+    sleep(800, 900)
+
+    voyage = pyautogui.locateOnScreen(
+        "./screenshots/voyage-location.png",
+        confidence=0.9,
+        grayscale=True
+    )
+    if voyage == None:
+        pydirectinput.press("f2")
+        sleep(20000, 22000)
+    else:
+
+        x1, y1, w1, h1 = voyage
+        x = x1 + w1 + 10
+        y = y1
+        mouseMoveTo(x=x, y=y)
+        sleep(300, 400)
+        pydirectinput.keyDown("alt")
+        sleep(300, 400)
+        pydirectinput.click(x=x, y=y, button="left")
+        sleep(300, 400)
+        pydirectinput.keyUp("alt")
+        pydirectinput.press("m")
+        sleep(90000, 100000)
+        # back2city
+        pydirectinput.press("f3")
+        sleep(20000, 22000)
+        # completeQuest
+        mouseMoveTo(x=1658, y=430)
+        sleep(300, 400)
+        pydirectinput.click(x=1658, y=430, button="left")
+        sleep(2000, 2200)
+        mouseMoveTo(x=360, y=780)
+        sleep(300, 400)
+        pydirectinput.click(x=360, y=780, button="left")
+        sleep(2000, 2200)
+        # repair ship
+        pydirectinput.press("m")
+        sleep(2000, 2200)
+        pydirectinput.click(x=1095, y=945, button="left")
+        sleep(2000, 2200)
+        ok = pyautogui.locateCenterOnScreen(
+            "./screenshots/ok.png",
+            confidence=0.7,
+            grayscale=True
+        )
+        if ok == None:
+            logging.info("[Charac]: <" + str(states["currentCharacter"]) + ">: " + "[GuildVoyage]: {Error: repair ship no ok}")
+            pydirectinput.press("esc")
+            sleep(800, 900)
+            pydirectinput.press("esc")
+            sleep(800, 900)
+        else:
+            x, y = ok
+            mouseMoveTo(x=x, y=y)
+            pydirectinput.click(x=x, y=y, button="left")
+            sleep(20000, 22000)
+            pydirectinput.click(x=1130, y=1050, button="left")
+            sleep(800, 900)
+            ok = pyautogui.locateCenterOnScreen(
+                "./screenshots/ok.png",
+                confidence=0.7,
+                grayscale=True
+            )
+            if ok != None:
+                x, y = ok
+                mouseMoveTo(x=x, y=y)
+                pydirectinput.click(x=x, y=y, button="left")
+                sleep(800, 900)
+                pydirectinput.click(x=1815, y=1065, button="left")
+                sleep(800, 900)
+                pydirectinput.press("f2")
+                sleep(20000, 22000)
+
     return
 
 
