@@ -3,13 +3,12 @@ from abilities import abilities
 import pyautogui
 import pydirectinput
 import time
-import random
-import math
 import argparse
 from datetime import date
 from datetime import datetime
-import json
 import logging
+from utils import *
+from utilsChaos import *
 
 import desire
 
@@ -62,11 +61,11 @@ def main():
     skip_desire = False
 
     # cold init
-    sleep(5000, 5500)
+    sleepCommonProcess()
     mouseMoveTo(x=config["screenCenterX"], y=config["screenCenterY"])
-    sleep(200, 300)
+    sleepClickOrPress()
     pydirectinput.click(button="right")
-    sleep(3000, 4000)
+    sleepCommonProcess()
 
     # check cmd parameter
     if args.all:
@@ -98,17 +97,12 @@ def main():
     # main process
     while True:
         if states["status"] == "inCity":
-            sleep(1000, 1200)
-
             mouseMoveTo(x=config["screenCenterX"], y=config["screenCenterY"])
-            sleep(100, 200)
-
-            repair()
-
+            sleepClickOrPress()
             # switch character
             if states["multiCharacterMode"]:
                 if sum(states["multiCharacterModeState"]) == 0:
-                    repair()
+                    logging.info("[Charac]: <" + str(states["currentCharacter"]) + ">: " + "[Chaos]: {finish}")
 
                     # daily quest
                     if needDoDailyQuest():
@@ -123,20 +117,21 @@ def main():
                         doGuildVoyage()
                         update_status_value(config_file_path, 'need_do_weeklyQuest', False)
 
-                    # back to city
+                    # back to manor
                     pydirectinput.press("f2")
-                    sleep(20000, 22000)
+                    sleepTransportLoading()
 
                     # finish all characters' daily and switch to character #1 to desire island
                     states["multiCharacterMode"] = False
                     states["multiCharacterModeState"] = []
-                    sleep(3400, 3600)
+                    sleepCommonProcess()
                     if skip_desire:
                         switchToCharacter(0)
                     else:
                         switchToCharacter(1)
-                    sleep(3400, 3600)
+                    sleepCommonProcess()
 
+                    logging.info("执行时间: " + str(processMin) + "m " + str(processSec) + "s " + str(processMsc) + "ms")
                     print("------------------------------------")
                     print("所有角色打卡完毕")
                     print("------------------------------------")
@@ -144,8 +139,7 @@ def main():
                 elif states["multiCharacterModeState"][states["currentCharacter"]] <= 0:
                     logging.info("[Charac]: <" + str(states["currentCharacter"]) + ">: " + "[Chaos]: {finish}")
 
-                    repair()
-
+                    # daily quest
                     if needDoDailyQuest():
                         doGuildDonation()
                         doIvnaDaily()
@@ -156,9 +150,9 @@ def main():
                         acceptGuildQuest()
                         doGuildVoyage()
 
-                    # back to Masyaf
+                    # back to manor
                     pydirectinput.press("f2")
-                    sleep(20000, 22000)
+                    sleepTransportLoading()
 
                     # switch to the next character
                     nextIndex = (states["currentCharacter"] + 1) % len(
@@ -169,7 +163,7 @@ def main():
                             states["currentCharacter"], nextIndex
                         )
                     )
-                    sleep(3400, 3600)
+                    sleepCommonProcess()
                     switchToCharacter(nextIndex)
 
                     # caculate process time
@@ -184,13 +178,12 @@ def main():
                     print("------------------------------------")
                     continue
                 else:
-                    sleep(500, 600)
+                    sleepClickOrPress()
                     startTime = int(time.time_ns() / 1000000)
                     if states["multiCharacterModeState"][states["currentCharacter"]] == 2:
                         logging.info("[Charac]: <" + str(states["currentCharacter"]) + ">: " + "[Chaos]: {start}")
-                    #TODO: enable this -> enterChaos()
 
-            # 生命周期最后：最后切换的账号无限刷
+            # 生命周期最后：刷渴望岛
             if not states["multiCharacterMode"]:
                 if not skip_desire:
                     desire_island_key_list = [[1698,347],[1475,576],[920,675]]
@@ -198,207 +191,22 @@ def main():
                         x = key[0]
                         y = key[1]
                         mouseMoveTo(x=x, y=y)
-                        sleep(1020, 1200)
+                        sleepClickOrPressLong()
                         pydirectinput.click(x=x, y=y, button="left")
-                        sleep(1020, 1200)
+                        sleepClickOrPressLong()
                     desire.desire()
-                    sleep(3400, 3600)
+                    sleepCommonProcess()
                 return
 
-            # save instance start time
+            #TODO: need reserve this?
             states["instanceStartTime"] = int(time.time_ns() / 1000000)
-            # initialize new states
             states["abilityScreenshots"] = []
             states["bossBarLocated"] = False
 
-
-        #TODO: enable this -> fight chaos
         logging.info("[Charac]: <" + str(states["currentCharacter"]) + ">: " + "[Chaos]: {enter}")
+        #TODO: enable this -> autoChaos()
         states["multiCharacterModeState"][states["currentCharacter"]] -= 1
         logging.info("[Charac]: <" + str(states["currentCharacter"]) + ">: " + "[Chaos]: {exit}")
-        '''
-        elif states["status"] == "floor1":
-            logging.info("floor1")
-            sleep(1000, 1300)
-            # wait for loading
-            waitForLoading()
-            mouseMoveTo(x=config["screenCenterX"], y=config["screenCenterY"])
-            sleep(100, 200)
-            if checkTimeout():
-                quitChaos()
-                continue
-            sleep(1000, 1200)
-            logging.info("floor1 loaded")
-
-            # saving clean abilities icons
-            saveAbilitiesScreenshots()
-
-            # do floor one
-            doFloor1()
-        elif states["status"] == "floor2":
-            logging.info("floor2")
-            sleep(1000, 1300)
-            # wait for loading
-            waitForLoading()
-            mouseMoveTo(x=config["screenCenterX"], y=config["screenCenterY"])
-            sleep(100, 200)
-            if checkTimeout():
-                quitChaos()
-                continue
-            logging.info("floor2 loaded")
-            # do floor two
-            doFloor2()
-        elif states["status"] == "floor3":
-            logging.info("floor3")
-            sleep(1000, 1300)
-            # wait for loading
-            waitForLoading()
-            mouseMoveTo(x=config["screenCenterX"], y=config["screenCenterY"])
-            sleep(100, 200)
-            if checkTimeout():
-                quitChaos()
-                continue
-            logging.info("floor3 loaded")
-            mouseMoveTo(x=760, y=750)
-            sleep(100, 120)
-            pydirectinput.click(button=config["move"])
-            sleep(200, 300)
-            pydirectinput.click(button=config["move"])
-            sleep(200, 300)
-            if checkTimeout() or states["floor3Mode"] == False:
-                quitChaos()
-                continue
-            doFloor3()
-        '''
-
-
-#===========================================================================
-# Chaos Dungeon Action functions
-#===========================================================================
-def enterChaos():
-    blackScreenStartTime = int(time.time_ns() / 1000000)
-        # wait for last run black screen
-
-    while True:
-        im = pyautogui.screenshot(region=(1652, 168, 240, 210))
-        r, g, b = im.getpixel((1772 - 1652, 272 - 168))
-        if r + g + b > 10:
-            break
-        sleep(200, 300)
-
-        currentTime = int(time.time_ns() / 1000000)
-        if currentTime - blackScreenStartTime > config["blackScreenTimeLimit"]:
-            logging.info("[Error] [Misc]: black screen too long time")
-            return
-    sleep(600, 800)
-    while True:
-        sleep(1000, 1200)
-
-        pydirectinput.keyDown("alt")
-        sleep(100, 200)
-        pydirectinput.press("q")
-        sleep(100, 200)
-        pydirectinput.keyUp("alt")
-        sleep(1200, 1400)
-
-        mouseMoveTo(x=886, y=316)
-        sleep(500, 600)
-        pydirectinput.click(x=886, y=316, button="left")
-        sleep(500, 600)
-        mouseMoveTo(x=886, y=316)
-        sleep(500, 600)
-        pydirectinput.click(x=886, y=316, button="left")
-        sleep(500, 600)
-
-        # select chaos dungeon level based on current Character
-        _curr = config["characters"][states["currentCharacter"]]
-        chaosTabPosition = {
-            # punika
-            1100: [[1317, 256], [411, 382]],
-            1310: [[1317, 256], [411, 455]],
-            1325: [[1317, 256], [411, 525]],
-            1340: [[1317, 256], [411, 580]],
-            1355: [[1317, 256], [411, 655]],
-            1370: [[1317, 256], [411, 731]],
-            1385: [[1317, 256], [411, 796]],
-            1400: [[1317, 256], [411, 865]],
-            # south vern
-            1415: [[1561, 255], [411, 382]],
-            1445: [[1561, 255], [411, 455]],
-            1475: [[1561, 255], [411, 525]],
-            1490: [[1561, 255], [411, 580]],
-            1520: [[1561, 255], [411, 655]],
-        }
-        if states["multiCharacterMode"]:
-            mouseMoveTo(
-                x=chaosTabPosition[_curr["ilvl-aor"]][0][0],
-                y=chaosTabPosition[_curr["ilvl-aor"]][0][1],
-            )
-            sleep(800, 900)
-            pydirectinput.click(
-                x=chaosTabPosition[_curr["ilvl-aor"]][0][0],
-                y=chaosTabPosition[_curr["ilvl-aor"]][0][1],
-                button="left",
-            )
-            sleep(500, 600)
-            pydirectinput.click(
-                x=chaosTabPosition[_curr["ilvl-aor"]][0][0],
-                y=chaosTabPosition[_curr["ilvl-aor"]][0][1],
-                button="left",
-            )
-            sleep(500, 600)
-            mouseMoveTo(
-                x=chaosTabPosition[_curr["ilvl-aor"]][1][0],
-                y=chaosTabPosition[_curr["ilvl-aor"]][1][1],
-            )
-            sleep(800, 900)
-            pydirectinput.click(
-                x=chaosTabPosition[_curr["ilvl-aor"]][1][0],
-                y=chaosTabPosition[_curr["ilvl-aor"]][1][1],
-                button="left",
-            )
-            sleep(500, 600)
-            pydirectinput.click(
-                x=chaosTabPosition[_curr["ilvl-aor"]][1][0],
-                y=chaosTabPosition[_curr["ilvl-aor"]][1][1],
-                button="left",
-            )
-            sleep(500, 600)
-
-        enterButton = pyautogui.locateCenterOnScreen(
-            "./screenshots/enterButton.png",
-            confidence=0.75,
-        )
-        if enterButton != None:
-            x, y = enterButton
-            mouseMoveTo(x=x, y=y)
-            sleep(800, 900)
-            pydirectinput.click(x=x, y=y, button="left")
-            sleep(100, 200)
-            pydirectinput.click(x=x, y=y, button="left")
-            sleep(100, 200)
-            pydirectinput.click(x=x, y=y, button="left")
-            sleep(100, 200)
-            pydirectinput.click(x=x, y=y, button="left")
-            sleep(100, 200)
-            pydirectinput.click(x=x, y=y, button="left")
-            break
-
-    mouseMoveTo(x=914, y=638)
-    sleep(800, 900)
-    pydirectinput.click(x=x, y=y, button="left")
-    sleep(100, 200)
-    pydirectinput.click(x=x, y=y, button="left")
-    sleep(100, 200)
-    pydirectinput.click(x=x, y=y, button="left")
-    sleep(100, 200)
-    pydirectinput.click(x=x, y=y, button="left")
-    sleep(100, 200)
-    pydirectinput.click(x=x, y=y, button="left")
-
-    states["status"] = "floor1"
-    logging.info("[Charac]: " + str(states["currentCharacter"]) + ": " + "[Status]: floor1")
-    return
 
 
 #===========================================================================
@@ -406,77 +214,76 @@ def enterChaos():
 #===========================================================================
 def doFarmingInMasyaf():
     pydirectinput.keyDown('f2')
-    sleep(300, 400)
+    sleepClickOrPress()
     pydirectinput.keyUp('f2')
-
-    sleep(20000, 21000)
+    sleepTransportLoading()
 
     # open dash board
     pydirectinput.keyDown('ctrl')
-    sleep(300, 400)
+    sleepClickOrPress()
     pydirectinput.keyDown('1')
-    sleep(300, 400)
+    sleepClickOrPress()
     pydirectinput.keyUp('ctrl')
-    sleep(300, 400)
+    sleepClickOrPress()
     pydirectinput.keyUp('1')
+    sleepClickOrPress()
 
     # quest
     qutst_key_list = [[143,300],[216,382],[988,256],[966,912],
-                      [678,390],[1845,420],[969,762],
-                      [678,390],[1593,685],[1779,920],[941,677],
-                      [685,463],[1593,685],[1779,920],[941,677],
-                      [599,534],[1593,685],[1779,920],[941,677]]
+                        [678,390],[1845,420],[969,762],
+                        [678,390],[1593,685],[1779,920],[941,677],
+                        [685,463],[1593,685],[1779,920],[941,677],
+                        [599,534],[1593,685],[1779,920],[941,677]]
     for key in qutst_key_list:
         x = key[0]
         y = key[1]
         mouseMoveTo(x=x, y=y)
-        sleep(300, 400)
+        sleepClickOrPress()
         pydirectinput.click(x=x, y=y, button="left")
-        sleep(300, 400)
+        sleepClickOrPress()
         pydirectinput.click(x=x, y=y, button="left")
-        sleep(2000, 2500)
-    sleep(3000,4000)
+        sleepClickOrPressList()
+    sleepCommonProcess()
     pydirectinput.keyDown('esc')
-    sleep(300, 400)
+    sleepClickOrPress()
     pydirectinput.keyUp('esc')
-    sleep(10000,11000)
+    sleepCommonProcess()
 
     # farm
     farm_key_list = [[252,301],[216,382],[956,947],[911,676],[971,746],
-                     [1291,950],[737,845],[914,651]]
+                        [1291,950],[737,845],[914,651]]
     for key in farm_key_list:
         x = key[0]
         y = key[1]
         mouseMoveTo(x=x, y=y)
-        sleep(300, 400)
+        sleepClickOrPress()
         pydirectinput.click(x=x, y=y, button="left")
-        sleep(300, 400)
+        sleepClickOrPress()
         pydirectinput.click(x=x, y=y, button="left")
-        sleep(2000, 2500)
-    sleep(3000,4000)
+        sleepClickOrPressList()
+    sleepCommonProcess()
     pydirectinput.keyDown('esc')
-    sleep(300, 400)
+    sleepClickOrPress()
     pydirectinput.keyUp('esc')
-    sleep(300, 400)
+    sleepClickOrPress()
     pydirectinput.keyDown('esc')
-    sleep(300, 400)
+    sleepClickOrPress()
     pydirectinput.keyUp('esc')
-
-    sleep(1000, 2000)
+    sleepCommonProcess()
     pydirectinput.keyDown('esc')
-    sleep(300, 400)
+    sleepClickOrPress()
     pydirectinput.keyUp('esc')
 
 
 def doGuildDonation():
     logging.info("[Charac]: <" + str(states["currentCharacter"]) + ">: " + "[GuildDonation]: {start}")
-    sleep(300, 400)
+    sleepClickOrPress()
     pydirectinput.keyDown("alt")
-    sleep(300, 400)
+    sleepClickOrPress()
     pydirectinput.press("u")
-    sleep(300, 400)
+    sleepClickOrPress()
     pydirectinput.keyUp("alt")
-    sleep(4100, 5200)
+    sleepCommonProcess()
 
     ok = pyautogui.locateCenterOnScreen(
         "./screenshots/ok.png",
@@ -487,33 +294,33 @@ def doGuildDonation():
     if ok != None:
         x, y = ok
         mouseMoveTo(x=x, y=y)
-        sleep(300, 400)
+        sleepClickOrPress()
         pydirectinput.click(x=x, y=y, button="left")
-        sleep(300, 400)
+        sleepClickOrPress()
         pydirectinput.click(x=x, y=y, button="left")
-    sleep(1500, 1600)
+    sleepCommonProcess()
 
     mouseMoveTo(x=1600, y=970)
-    sleep(500, 600)
+    sleepClickOrPress()
     pydirectinput.click(button="left")
-    sleep(500, 600)
+    sleepClickOrPress()
     pydirectinput.click(button="left")
-    sleep(500, 600)
+    sleepClickOrPress()
     pydirectinput.click(button="left")
-    sleep(500, 600)
+    sleepClickOrPress()
 
     # donoate silver
     mouseMoveTo(x=700, y=595)
-    sleep(500, 600)
+    sleepClickOrPress()
     pydirectinput.click(button="left")
-    sleep(500, 600)
+    sleepClickOrPress()
     pydirectinput.click(button="left")
-    sleep(500, 600)
+    sleepClickOrPress()
     pydirectinput.click(button="left")
-    sleep(500, 600)
+    sleepClickOrPress()
 
     pydirectinput.press("esc")
-    sleep(3500, 3600)
+    sleepCommonProcess()
 
     supportResearch = pyautogui.locateCenterOnScreen(
         "./screenshots/supportResearch.png",
@@ -524,13 +331,13 @@ def doGuildDonation():
         x, y = supportResearch
         logging.info("[Charac]: <" + str(states["currentCharacter"]) + ">: " + "[GuildDonation]: supportResearch")
         mouseMoveTo(x=x, y=y)
-        sleep(500, 600)
+        sleepClickOrPress()
         pydirectinput.click(button="left")
-        sleep(500, 600)
+        sleepClickOrPress()
         pydirectinput.click(button="left")
-        sleep(500, 600)
+        sleepClickOrPress()
         pydirectinput.click(button="left")
-        sleep(1500, 1600)
+        sleepCommonProcess()
 
         canSupportResearch = pyautogui.locateCenterOnScreen(
             "./screenshots/canSupportResearch.png",
@@ -540,42 +347,41 @@ def doGuildDonation():
         if canSupportResearch != None:
             x, y = canSupportResearch
             mouseMoveTo(x=x, y=y)
-            sleep(500, 600)
+            sleepClickOrPress()
             pydirectinput.click(button="left")
-            sleep(500, 600)
+            sleepClickOrPress()
             pydirectinput.click(button="left")
-            sleep(500, 600)
+            sleepClickOrPress()
             pydirectinput.click(button="left")
-            sleep(500, 600)
+            sleepClickOrPress()
 
             mouseMoveTo(x=910, y=780)
-            sleep(500, 600)
+            sleepClickOrPress()
             pydirectinput.click(button="left")
-            sleep(500, 600)
+            sleepClickOrPress()
             pydirectinput.click(button="left")
-            sleep(500, 600)
+            sleepClickOrPress()
             pydirectinput.click(button="left")
-            sleep(500, 600)
+            sleepClickOrPress()
         else:
             pydirectinput.press("esc")
-            sleep(800, 900)
+            sleepClickOrPress()
 
-    sleep(2800, 2900)
+    sleepCommonProcess()
     pydirectinput.press("esc")
-    sleep(800, 900)
-
+    sleepCommonProcess()
     logging.info("[Charac]: <" + str(states["currentCharacter"]) + ">: " + "[GuildDonation]: {finish}")
 
 
 def doIvnaDaily():
     logging.info("[Charac]: <" + str(states["currentCharacter"]) + ">: " + "[IvnaDaily]: {start}")
-    sleep(300, 400)
+    sleepClickOrPress()
     pydirectinput.keyDown("alt")
-    sleep(300, 400)
+    sleepClickOrPress()
     pydirectinput.press("j")
-    sleep(300, 400)
+    sleepClickOrPress()
     pydirectinput.keyUp("alt")
-    sleep(4100, 5200)
+    sleepCommonProcess()
 
     # accept quest
     acceptQuest_key_list = [[1280,378],[1280,456]]
@@ -583,15 +389,15 @@ def doIvnaDaily():
         x = key[0]
         y = key[1]
         mouseMoveTo(x=x, y=y)
-        sleep(300, 400)
+        sleepClickOrPress()
         pydirectinput.click(x=x, y=y, button="left")
-        sleep(300, 400)
+        sleepClickOrPress()
     pydirectinput.press("esc")
-    sleep(2000, 2500)
+    sleepCommonProcess()
 
     # finish quest #1
     pydirectinput.press("5")
-    sleep(3000, 3500)
+    sleepCommonProcess()
     quest1_key_list = [[1698,347],[1475,413],[920,675],[1650,420],[356,772]]
     i = 0
     for key in quest1_key_list:
@@ -599,11 +405,11 @@ def doIvnaDaily():
         x = key[0]
         y = key[1]
         mouseMoveTo(x=x, y=y)
-        sleep(1020, 1200)
+        sleepClickOrPress()
         pydirectinput.click(x=x, y=y, button="left")
-        sleep(1020, 1200)
+        sleepClickOrPressList()
         if i == 3:
-            sleep(20000, 22000)
+            sleepTransportLoading()
     rainbow = pyautogui.locateCenterOnScreen(
         "./screenshots/rainbow-interface.png",
         confidence=0.7,
@@ -611,7 +417,7 @@ def doIvnaDaily():
     )
     if not rainbow == None:
         pydirectinput.press("esc")
-        sleep(800, 900)
+        sleepClickOrPressLong()
 
     # finish quest #2
     quest2_key_list = [[1698,347],[1474,490],[920,675]]
@@ -621,22 +427,22 @@ def doIvnaDaily():
         x = key[0]
         y = key[1]
         mouseMoveTo(x=x, y=y)
-        sleep(1020, 1200)
+        sleepClickOrPress()
         pydirectinput.click(x=x, y=y, button="left")
-        sleep(1020, 1200)
-    sleep(20000, 22000)
+        sleepClickOrPressList()
+    sleepTransportLoading()
     pydirectinput.press("f4")
-    sleep(20000, 22000)
+    sleepSongSky()
     pydirectinput.press("f4")
-    sleep(11000, 13000)
+    sleepSongSky()
     pydirectinput.press("g")
-    sleep(1000, 2000)
+    sleepClickOrPressLong()
     pydirectinput.press("g")
-    sleep(1000, 2000)
+    sleepClickOrPressLong()
     pydirectinput.press("g")
-    sleep(1000, 2000)
+    sleepClickOrPressLong()
     pydirectinput.press("g")
-    sleep(3000, 4000)
+    sleepCommonProcess()
 
     logging.info("[Charac]: <" + str(states["currentCharacter"]) + ">: " + "[IvnaDaily]: {finish}")
     return
@@ -644,13 +450,13 @@ def doIvnaDaily():
 
 def acceptIvnaWeekly():
     logging.info("[Charac]: <" + str(states["currentCharacter"]) + ">: " + "[IvnaWeekly]: {accpet}")
-    sleep(300, 400)
+    sleepClickOrPress()
     pydirectinput.keyDown("alt")
-    sleep(300, 400)
+    sleepClickOrPress()
     pydirectinput.press("j")
-    sleep(300, 400)
+    sleepClickOrPress()
     pydirectinput.keyUp("alt")
-    sleep(4100, 5200)
+    sleepCommonProcess()
 
     # accept quest
     acceptQuest_key_list = [[583,193],[1280,360],[1280,440],[1280,513]]
@@ -658,26 +464,26 @@ def acceptIvnaWeekly():
         x = key[0]
         y = key[1]
         mouseMoveTo(x=x, y=y)
-        sleep(300, 400)
+        sleepClickOrPress()
         pydirectinput.click(x=x, y=y, button="left")
-        sleep(300, 400)
+        sleepClickOrPress()
     pydirectinput.press("esc")
-    sleep(2000, 2500)
+    sleepCommonProcess()
 
     return
 
 
 def acceptGuildQuest():
     logging.info("[Charac]: <" + str(states["currentCharacter"]) + ">: " + "[GuildQuest]: {accpet}")
-    sleep(300, 400)
+    sleepClickOrPress()
     pydirectinput.keyDown("alt")
-    sleep(300, 400)
+    sleepClickOrPress()
     pydirectinput.press("j")
-    sleep(300, 400)
+    sleepClickOrPress()
     pydirectinput.keyUp("alt")
-    sleep(4100, 5200)
+    sleepCommonProcess()
 
-    # TODO: check have cube
+    #TODO: check have cube
     #logging.info("not set guild quest already")
     #manageGuildQuest()
 
@@ -687,11 +493,11 @@ def acceptGuildQuest():
         x = key[0]
         y = key[1]
         mouseMoveTo(x=x, y=y)
-        sleep(300, 400)
+        sleepClickOrPress()
         pydirectinput.click(x=x, y=y, button="left")
-        sleep(800, 900)
+        sleepClickOrPressList()
     pydirectinput.press("esc")
-    sleep(2000, 2500)
+    sleepCommonProcess()
 
     return
 
@@ -707,7 +513,7 @@ def doGuildVoyage():
     logging.info("[Charac]: <" + str(states["currentCharacter"]) + ">: " + "[GuildVoyage]: {start}")
 
     # complete guild voyage
-    sleep(3000, 3500)
+    sleepCommonProcess()
     quest1_key_list = [[1698,347],[1475,585],[920,675]]
     i = 0
     for key in quest1_key_list:
@@ -715,11 +521,11 @@ def doGuildVoyage():
         x = key[0]
         y = key[1]
         mouseMoveTo(x=x, y=y)
-        sleep(1200, 1400)
+        sleepClickOrPress()
         pydirectinput.click(x=x, y=y, button="left")
-        sleep(1200, 1400)
+        sleepClickOrPressList()
         if i == 3:
-            sleep(20000, 22000)
+            sleepTransportLoading()
     rainbow = pyautogui.locateCenterOnScreen(
         "./screenshots/rainbow-interface.png",
         confidence=0.7,
@@ -727,10 +533,10 @@ def doGuildVoyage():
     )
     if not rainbow == None:
         pydirectinput.press("esc")
-        sleep(800, 900)
+        sleepClickOrPressLong()
 
     pydirectinput.press("m")
-    sleep(800, 900)
+    sleepClickOrPressLong()
 
     voyage = pyautogui.locateOnScreen(
         "./screenshots/voyage-location.png",
@@ -739,38 +545,40 @@ def doGuildVoyage():
     )
     if voyage == None:
         pydirectinput.press("f2")
-        sleep(20000, 22000)
+        sleepTransportLoading()
     else:
-
         x1, y1, w1, h1 = voyage
         x = x1 + w1 + 10
         y = y1
         mouseMoveTo(x=x, y=y)
-        sleep(300, 400)
+        sleepClickOrPress()
         pydirectinput.keyDown("alt")
-        sleep(300, 400)
+        sleepClickOrPress()
         pydirectinput.click(x=x, y=y, button="left")
-        sleep(300, 400)
+        sleepClickOrPress()
         pydirectinput.keyUp("alt")
         pydirectinput.press("m")
-        sleep(90000, 100000)
+        sleepVoyage()
+
         # back2city
         pydirectinput.press("f3")
-        sleep(20000, 22000)
+        sleepTransportLoading()
+
         # completeQuest
         mouseMoveTo(x=1658, y=430)
-        sleep(300, 400)
+        sleepClickOrPress()
         pydirectinput.click(x=1658, y=430, button="left")
-        sleep(2000, 2200)
+        sleepClickOrPressLong()
         mouseMoveTo(x=360, y=780)
-        sleep(300, 400)
+        sleepClickOrPress()
         pydirectinput.click(x=360, y=780, button="left")
-        sleep(2000, 2200)
+        sleepClickOrPressLong()
+
         # repair ship
         pydirectinput.press("m")
-        sleep(2000, 2200)
+        sleepClickOrPressLong()
         pydirectinput.click(x=1095, y=945, button="left")
-        sleep(2000, 2200)
+        sleepClickOrPressLong()
         ok = pyautogui.locateCenterOnScreen(
             "./screenshots/ok.png",
             confidence=0.7,
@@ -779,16 +587,16 @@ def doGuildVoyage():
         if ok == None:
             logging.info("[Charac]: <" + str(states["currentCharacter"]) + ">: " + "[GuildVoyage]: {Error: repair ship no ok}")
             pydirectinput.press("esc")
-            sleep(800, 900)
+            sleepClickOrPressLong()
             pydirectinput.press("esc")
-            sleep(800, 900)
+            sleepClickOrPressLong()
         else:
             x, y = ok
             mouseMoveTo(x=x, y=y)
             pydirectinput.click(x=x, y=y, button="left")
-            sleep(20000, 22000)
+            sleepTransportLoading()
             pydirectinput.click(x=1130, y=1050, button="left")
-            sleep(800, 900)
+            sleepClickOrPressLong()
             ok = pyautogui.locateCenterOnScreen(
                 "./screenshots/ok.png",
                 confidence=0.7,
@@ -798,150 +606,54 @@ def doGuildVoyage():
                 x, y = ok
                 mouseMoveTo(x=x, y=y)
                 pydirectinput.click(x=x, y=y, button="left")
-                sleep(800, 900)
+                sleepClickOrPressLong()
                 pydirectinput.click(x=1815, y=1065, button="left")
-                sleep(800, 900)
+                sleepClickOrPressLong()
                 pydirectinput.press("f2")
-                sleep(20000, 22000)
+                sleepTransportLoading()
 
     return
 
 
 def switchToCharacter(index):
-    sleep(1500, 1600)
+    sleepClickOrPressLong()
     pydirectinput.press("esc")
-    sleep(2500, 2600)
+    sleepClickOrPressLong()
     mouseMoveTo(x=config["charSwitchX"], y=config["charSwitchY"])
-    sleep(1500, 1600)
-    mouseMoveTo(x=config["charSwitchX"], y=config["charSwitchY"])
-    mouseMoveTo(x=config["charSwitchX"], y=config["charSwitchY"])
-    sleep(1500, 1600)
+    sleepClickOrPressLong()
     pydirectinput.click(x=config["charSwitchX"], y=config["charSwitchY"], button="left")
-    sleep(1500, 1600)
-    pydirectinput.click(x=config["charSwitchX"], y=config["charSwitchY"], button="left")
-    sleep(500, 600)
-    pydirectinput.click(x=config["charSwitchX"], y=config["charSwitchY"], button="left")
-    sleep(200, 300)
-
-    '''
-    mouseMoveTo(x=1260, y=392)
-    sleep(1500, 1600)
-    pydirectinput.click(x=1260, y=392, button="left")
-    sleep(1500, 1600)
-    pydirectinput.click(x=1260, y=392, button="left")
-    sleep(1500, 1600)
-    pydirectinput.click(x=1260, y=392, button="left")
-    sleep(500, 600)
-    pydirectinput.click(x=1260, y=392, button="left")
-    sleep(1500, 1600)
-    pydirectinput.click(x=1260, y=392, button="left")
-    sleep(1500, 1600)
-    if index > 8:
-        # mouseMoveTo(
-        #     x=config["charPositions"][index][0], y=config["charPositions"][index][1]
-        # )
-        # pyautogui.scroll(-5)
-        # sleep(1500, 1600)
-        mouseMoveTo(x=1260, y=638)
-        sleep(1500, 1600)
-        pydirectinput.click(x=1260, y=638, button="left")
-        sleep(1500, 1600)
-        pydirectinput.click(x=1260, y=638, button="left")
-        sleep(1500, 1600)
-        pydirectinput.click(x=1260, y=638, button="left")
-        sleep(500, 600)
-        pydirectinput.click(x=1260, y=638, button="left")
-        sleep(1500, 1600)
-        pydirectinput.click(x=1260, y=638, button="left")
-        sleep(1500, 1600)
-    '''
+    sleepClickOrPressLong()
 
     mouseMoveTo(
-        x=config["charPositions"][index][0], y=config["charPositions"][index][1]
+        x=config["charPositions"][index][0],
+        y=config["charPositions"][index][1]
     )
-    sleep(1500, 1600)
+    sleepClickOrPressLong()
     pydirectinput.click(
         x=config["charPositions"][index][0],
         y=config["charPositions"][index][1],
         button="left",
     )
-    sleep(1500, 1600)
-    pydirectinput.click(
-        x=config["charPositions"][index][0],
-        y=config["charPositions"][index][1],
-        button="left",
-    )
-    sleep(500, 600)
-    mouseMoveTo(
-        x=config["charPositions"][index][0], y=config["charPositions"][index][1]
-    )
-    sleep(500, 600)
-    pydirectinput.click(
-        x=config["charPositions"][index][0],
-        y=config["charPositions"][index][1],
-        button="left",
-    )
-    sleep(1200, 1300)
-    pydirectinput.click(
-        x=config["charPositions"][index][0],
-        y=config["charPositions"][index][1],
-        button="left",
-    )
-    sleep(1500, 1600)
-    pydirectinput.click(
-        x=config["charPositions"][index][0],
-        y=config["charPositions"][index][1],
-        button="left",
-    )
-    sleep(1500, 1600)
+    sleepClickOrPressLong()
 
     mouseMoveTo(x=config["charSelectConnectX"], y=config["charSelectConnectY"])
-    sleep(1500, 1600)
+    sleepClickOrPressLong()
     pydirectinput.click(
         x=config["charSelectConnectX"], y=config["charSelectConnectY"], button="left"
     )
-    sleep(200, 300)
-    pydirectinput.click(
-        x=config["charSelectConnectX"], y=config["charSelectConnectY"], button="left"
-    )
-    sleep(500, 600)
-    pydirectinput.click(
-        x=config["charSelectConnectX"], y=config["charSelectConnectY"], button="left"
-    )
-    sleep(200, 300)
-    pydirectinput.click(
-        x=config["charSelectConnectX"], y=config["charSelectConnectY"], button="left"
-    )
-    sleep(500, 600)
-    pydirectinput.click(
-        x=config["charSelectConnectX"], y=config["charSelectConnectY"], button="left"
-    )
-    sleep(1000, 1000)
+    sleepClickOrPressLong()
 
     mouseMoveTo(x=config["charSelectOkX"], y=config["charSelectOkY"])
-    sleep(1500, 1600)
+    sleepClickOrPressLong()
     pydirectinput.click(
         x=config["charSelectOkX"], y=config["charSelectOkY"], button="left"
     )
-    sleep(200, 300)
-    pydirectinput.click(
-        x=config["charSelectOkX"], y=config["charSelectOkY"], button="left"
-    )
-    sleep(1500, 1600)
-    pydirectinput.click(
-        x=config["charSelectOkX"], y=config["charSelectOkY"], button="left"
-    )
-    sleep(200, 300)
-    pydirectinput.click(
-        x=config["charSelectOkX"], y=config["charSelectOkY"], button="left"
-    )
-    sleep(500, 600)
+    sleepClickOrPressLong()
 
     states["currentCharacter"] = index
-    states["abilityScreenshots"] = []
 
     # wait black screen
-    sleep(20000, 22000)
+    sleepTransportLoading()
 
 
 def needDoWeeklyQuest():
@@ -989,56 +701,6 @@ def needDoDailyQuest():
         return True
     else:
         return False
-
-
-def repair():
-    # TODO: if config["auraRepair"]:
-        # TODO: doAuraRepair(True)
-    # TODO: else:
-        # TODO: doCityRepair()
-    # sleep(1400, 1600)
-    return
-
-
-#===========================================================================
-# Utils functions
-#===========================================================================
-def sleep(min, max):
-    sleepTime = random.randint(min, max) / 1000.0
-    if sleepTime < 0:
-        return
-    time.sleep(sleepTime)
-
-
-def mouseMoveTo(**kwargs):
-    x = kwargs["x"]
-    y = kwargs["y"]
-    pydirectinput.moveTo(x=x, y=y)
-
-
-def read_status_value(file_path, key):
-    try:
-        with open(file_path, 'r') as file:
-            config_data = json.load(file)
-            return config_data.get(key, None)
-    except FileNotFoundError:
-        logging.info("Config file not found.")
-        return None
-
-
-def update_status_value(file_path, key, value):
-    try:
-        with open(file_path, 'r') as file:
-            config_data = json.load(file)
-
-        config_data[key] = value
-
-        with open(file_path, 'w') as file:
-            json.dump(config_data, file, indent=4)
-    except FileNotFoundError:
-        logging.info("Config file not found.")
-    except json.JSONDecodeError:
-        logging.info("Error decoding JSON.")
 
 
 if __name__ == "__main__":

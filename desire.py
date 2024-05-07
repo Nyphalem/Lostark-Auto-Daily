@@ -30,7 +30,7 @@ def waitForSwitchToLostArk():
 def click_all():
     # automatically open inventory
     bagExist = pyautogui.locateCenterOnScreen(
-        "./bag.png",
+        "./screenshots/bag.png",
         confidence=0.6,
         grayscale=True
     )
@@ -43,7 +43,7 @@ def click_all():
     print("---------------------------")
     while (1):
         bagExist = pyautogui.locateCenterOnScreen(
-            "./bag.png",
+            "./screenshots/bag.png",
             confidence=0.6,
             grayscale=True
         )
@@ -81,9 +81,8 @@ def click_all():
             time.sleep(random.uniform(20, 22))
 
             bagExist = pyautogui.locateCenterOnScreen(
-                "./bag.png",
-                confidence=0.6,
-                grayscale=True
+                "./screenshots/bag.png",
+                confidence=0.9,
             )
             if not bagExist == None:
                 i -= 1
@@ -100,7 +99,7 @@ def click_all():
             logging.info("炮管冷却完毕")
 
             bagExist = pyautogui.locateCenterOnScreen(
-                "./bag.png",
+                "./screenshots/bag.png",
                 confidence=0.6,
                 grayscale=True
             )
@@ -112,7 +111,7 @@ def click_all():
                 time.sleep(random.uniform(20, 22))
 
             bagExist = pyautogui.locateCenterOnScreen(
-                "./bag.png",
+                "./screenshots/bag.png",
                 confidence=0.6,
                 grayscale=True
             )
