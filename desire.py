@@ -31,7 +31,7 @@ def click_all():
     # automatically open inventory
     bagExist = pyautogui.locateCenterOnScreen(
         "./screenshots/bag.png",
-        confidence=0.6,
+        confidence=0.7,
         grayscale=True
     )
     if bagExist == None:
@@ -44,10 +44,9 @@ def click_all():
     while (1):
         bagExist = pyautogui.locateCenterOnScreen(
             "./screenshots/bag.png",
-            confidence=0.6,
+            confidence=0.7,
             grayscale=True
         )
-
         if bagExist == None:
             print("---------------------------")
             logging.info("5秒后返回领地并停止程序")
@@ -82,7 +81,8 @@ def click_all():
 
             bagExist = pyautogui.locateCenterOnScreen(
                 "./screenshots/bag.png",
-                confidence=0.9,
+                confidence=0.7,
+                grayscale=True
             )
             if not bagExist == None:
                 i -= 1

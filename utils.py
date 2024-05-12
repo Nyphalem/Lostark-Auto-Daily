@@ -1,9 +1,43 @@
+from config import config
 import time
 import pydirectinput
 import logging
 import random
 import json
 
+logging.basicConfig(level=logging.INFO,
+                    format='%(asctime)s %(levelname)s: %(message)s',
+                    datefmt='%Y-%m-%d %H:%M:%S')
+
+config_file_path = 'config.json'
+
+pydirectinput.PAUSE = 0.05
+newStates = {
+    "status": "inCity",
+    "abilities": [],
+    "abilityScreenshots": [],
+    "bossBarLocated": False,
+    "clearCount": 0,
+    "fullClearCount": 0,
+    "moveToX": config["screenCenterX"],
+    "moveToY": config["screenCenterY"],
+    "moveTime": 0,
+    "botStartTime": None,
+    "instanceStartTime": None,
+    "deathCount": 0,
+    "healthPotCount": 0,
+    "timeoutCount": 0,
+    "badRunCount": 0,
+    "gameRestartCount": 0,
+    "gameCrashCount": 0,
+    "gameOfflineCount": 0,
+    "minTime": config["timeLimit"],
+    "maxTime": -1,
+    "floor3Mode": False,
+    "multiCharacterMode": False,
+    "currentCharacter": config["mainCharacter"],
+    "multiCharacterModeState": [],
+}
 
 def sleep(min, max):
     sleepTime = random.randint(min, max) / 1000.0
