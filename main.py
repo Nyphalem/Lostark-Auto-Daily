@@ -238,6 +238,7 @@ def doFarmingInMasyaf():
     pydirectinput.keyDown('esc')
     sleepClickOrPress()
     pydirectinput.keyUp('esc')
+    sleepClickOrPress()
     manor_manage = pyautogui.locateCenterOnScreen(
         "./screenshots/manor-c1.png",
         confidence=0.9
@@ -272,6 +273,11 @@ def doGuildDonation():
         sleepClickOrPress()
         pydirectinput.click(x=x, y=y, button="left")
     sleepCommonProcess()
+
+    mouseMoveTo(x=682, y=174)
+    sleepClickOrPress()
+    pydirectinput.click(button="left")
+    sleepClickOrPress()
 
     mouseMoveTo(x=1600, y=970)
     sleepClickOrPress()
@@ -357,7 +363,7 @@ def doIvnaDaily():
     sleepCommonProcess()
 
     # accept quest
-    acceptQuest_key_list = [[1280,378],[1280,456]]
+    acceptQuest_key_list = [[418,192],[1280,378],[1280,456]]
     for key in acceptQuest_key_list:
         x = key[0]
         y = key[1]
@@ -456,9 +462,28 @@ def acceptGuildQuest():
     pydirectinput.keyUp("alt")
     sleepCommonProcess()
 
-    #TODO: check have cube
-    #logging.info("not set guild quest already")
-    #manageGuildQuest()
+    mouseMoveTo(x=890, y=193)
+    sleepClickOrPress()
+    pydirectinput.click(x=890, y=193, button="left")
+    sleepCommonProcess()
+    guildQuestAvailable = pyautogui.locateCenterOnScreen(
+        "./screenshots/accept-guildquest.png",
+        confidence=0.7,
+        region=(354, 643, 1000, 200),
+    )
+    if guildQuestAvailable == None:
+        #manage guild quest
+        sleepClickOrPress()
+        pydirectinput.press("esc")
+        sleepClickOrPress()
+        manageGuildQuest()
+        sleepClickOrPress()
+        pydirectinput.keyDown("alt")
+        sleepClickOrPress()
+        pydirectinput.press("j")
+        sleepClickOrPress()
+        pydirectinput.keyUp("alt")
+        sleepCommonProcess()
 
     # accept quest
     acceptQuest_key_list = [[890,193],[1280,516],[1280,593],[1280,666]]
@@ -476,7 +501,29 @@ def acceptGuildQuest():
 
 
 def manageGuildQuest():
-    logging.info("TODO: manageGuildQuest")
+    logging.info("[Charac]: <" + str(states["currentCharacter"]) + ">: " + "[GuildQuest]: {manage}")
+    sleepClickOrPress()
+    pydirectinput.keyDown("alt")
+    sleepClickOrPress()
+    pydirectinput.press("u")
+    sleepClickOrPress()
+    pydirectinput.keyUp("alt")
+    sleepCommonProcess()
+
+    manageQuest_key_list = [[994,172],[1612,230],[584,228],[400,289],
+                            [1030,356],[916,635],[1030,458],[916,635],[1030,553],[916,635]]
+    for key in manageQuest_key_list:
+        x = key[0]
+        y = key[1]
+        mouseMoveTo(x=x, y=y)
+        sleepClickOrPress()
+        pydirectinput.click(x=x, y=y, button="left")
+        sleepClickOrPressList()
+
+    pydirectinput.press("esc")
+    sleepCommonProcess()
+    pydirectinput.press("esc")
+    sleepCommonProcess()
     return
 
 
@@ -563,6 +610,15 @@ def doGuildVoyage():
             sleepClickOrPressLong()
             pydirectinput.press("esc")
             sleepClickOrPressLong()
+            esc_exist = pyautogui.locateCenterOnScreen(
+                "./screenshots/esc-exist.png",
+                confidence=0.7,
+                grayscale=True
+            )
+            if not esc_exist == None:
+                sleepClickOrPressLong()
+                pydirectinput.press("esc")
+                sleepClickOrPressLong()
         else:
             x, y = ok
             mouseMoveTo(x=x, y=y)
