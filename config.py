@@ -19,7 +19,7 @@ config = {
     "shortcutEnterChaos": True,  # you want to use True
     "useHealthPot": True,  # you want to use True
     "regions": {
-        "minimap": (1655, 170, 260, 200),
+        "minimap": (1599, 76, 291, 257),
         "abilities": (625, 779, 300, 155),
         "leaveMenu": (0, 154, 250, 300),
         "buffs": (625, 780, 300, 60),
@@ -39,8 +39,8 @@ config = {
     "blackScreenTimeLimit": 30000,  # if stuck in nothing for this amount of time, alt f4 game, restart and resume.
     "delayedStart": 2500,
     "portalPause": 700,
-    "healthCheckX": 690,
-    "healthCheckY": 854,
+    "healthCheckX": 623,
+    "healthCheckY": 998,
     "charSwitchX": 400,
     "charSwitchY": 760,
     "charPositionsAtCharSelect": [

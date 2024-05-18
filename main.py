@@ -4,7 +4,7 @@ import pyautogui
 import pydirectinput
 import time
 import argparse
-from datetime import date
+from datetime import timedelta
 from datetime import datetime
 from utils import *
 from utilsChaos import *
@@ -264,7 +264,6 @@ def doGuildDonation():
         region=config["regions"]["center"],
         confidence=0.75
     )
-
     if ok != None:
         x, y = ok
         mouseMoveTo(x=x, y=y)
@@ -290,6 +289,16 @@ def doGuildDonation():
 
     # donoate silver
     mouseMoveTo(x=700, y=595)
+    sleepClickOrPress()
+    pydirectinput.click(button="left")
+    sleepClickOrPress()
+    pydirectinput.click(button="left")
+    sleepClickOrPress()
+    pydirectinput.click(button="left")
+    sleepClickOrPress()
+
+    # donoate token
+    mouseMoveTo(x=1230, y=605)
     sleepClickOrPress()
     pydirectinput.click(button="left")
     sleepClickOrPress()
@@ -687,6 +696,7 @@ def switchToCharacter(index):
 
 def needDoWeeklyQuest():
     now = datetime.now()
+    now -= timedelta(hours = 6)
     day_of_week_weeklyQuest = now.weekday()
 
     weekly_quest_status = read_status_value(config_file_path, 'need_do_weeklyQuest')
@@ -704,6 +714,8 @@ def needDoWeeklyQuest():
 
 def needDoFarmingInMasyaf():
     now = datetime.now()
+    now -= timedelta(hours = 6)
+    print(now)
     day_of_week_farmingInMasyaf = now.weekday()
     prev_day_of_week_farmingInMasyaf = read_status_value(config_file_path, 'day_of_week_farmingInMasyaf')
     if not day_of_week_farmingInMasyaf == prev_day_of_week_farmingInMasyaf:
@@ -719,6 +731,7 @@ def needDoFarmingInMasyaf():
 
 def needDoDailyQuest():
     now = datetime.now()
+    now -= timedelta(hours = 6)
     day_of_week_dailyQuest = now.weekday()
     prev_day_of_week_dailyQuest = read_status_value(config_file_path, 'day_of_week_dailyQuest')
     if not day_of_week_dailyQuest == prev_day_of_week_dailyQuest:
