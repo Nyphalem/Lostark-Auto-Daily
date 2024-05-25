@@ -7,7 +7,7 @@ import argparse
 from datetime import timedelta
 from datetime import datetime
 from utils import *
-from utilsChaos import *
+from utilsChaosEnter import *
 import logging
 import desire
 
@@ -495,7 +495,7 @@ def acceptGuildQuest():
         sleepCommonProcess()
 
     # accept quest
-    acceptQuest_key_list = [[890,193],[1280,516],[1280,593],[1280,666]]
+    acceptQuest_key_list = [[890,193],[1280,593],[1280,593],[1280,666]]
     for key in acceptQuest_key_list:
         x = key[0]
         y = key[1]

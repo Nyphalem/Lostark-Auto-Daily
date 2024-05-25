@@ -24,7 +24,8 @@ config = {
         "leaveMenu": (0, 154, 250, 300),
         "buffs": (625, 780, 300, 60),
         "center": (685, 280, 600, 420),
-        "portal": (228, 230, 1370, 570),
+        "portal": (0, 37, 1920, 1080),
+        "chaos-remain-time": (200, 0, 400, 200),
     },
     "screenResolutionX": 1920,
     "screenResolutionY": 1080,
@@ -32,8 +33,8 @@ config = {
     "clickableAreaY": 250,
     "screenCenterX": 960,
     "screenCenterY": 540,
-    "minimapCenterX": 1772,
-    "minimapCenterY": 272,
+    "minimapCenterX": 1745,
+    "minimapCenterY": 204,
     "timeLimit": 450000,  # to prevent unexpected amount of time spent in a chaos dungeon, a tiem limit is set here, will quit after this amount of seconds
     "timeLimitAor": 720000,  # to prevent unexpected amount of time spent in a chaos dungeon, a tiem limit is set here, will quit after this amount of seconds
     "blackScreenTimeLimit": 30000,  # if stuck in nothing for this amount of time, alt f4 game, restart and resume.
