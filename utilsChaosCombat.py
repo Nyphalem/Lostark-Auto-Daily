@@ -133,7 +133,7 @@ def checkBlackScreen():
 
 
 def checkHealth():
-    if config["useHealthPot"] == False:
+    if config["healthPotUse"] == False:
         return
     if not checkBlackScreen():
         x = int(
@@ -161,7 +161,7 @@ def checkTimeout():
 def checkAsh():
     ash = pyautogui.locateCenterOnScreen(
         "./screenshots/chaos-ash.png",
-        region=config["regions"]["center"],
+        region=config["regions"]["whole-game"],
         confidence=0.75
     )
     if ash != None:
@@ -227,7 +227,7 @@ def checkTimeout():
     if timeout != None:
         chaosExit1 = pyautogui.locateCenterOnScreen(
             "./screenshots/chaos-exit1.png",
-            region=config["regions"]["portal"],
+            region=config["regions"]["whole-game"],
             confidence=0.7
         )
         if chaosExit1 != None:
@@ -238,7 +238,7 @@ def checkTimeout():
             sleepClickOrPressLong()
             chaosExit2 = pyautogui.locateCenterOnScreen(
                 "./screenshots/chaos-exit2.png",
-                region=config["regions"]["portal"],
+                region=config["regions"]["whole-game"],
                 confidence=0.7
             )
             if chaosExit2 != None:
@@ -348,12 +348,12 @@ def clickTower():
     riftCore1 = pyautogui.locateCenterOnScreen(
         "./screenshots/chaos-riftcore1.png",
         confidence=0.6,
-        region=config["regions"]["portal"],
+        region=config["regions"]["whole-game"],
     )
     riftCore2 = pyautogui.locateCenterOnScreen(
         "./screenshots/chaos-riftcore2.png",
         confidence=0.6,
-        region=config["regions"]["portal"],
+        region=config["regions"]["whole-game"],
     )
     if riftCore1 != None:
         x, y = riftCore1

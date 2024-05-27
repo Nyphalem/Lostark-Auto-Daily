@@ -261,7 +261,7 @@ def doGuildDonation():
 
     ok = pyautogui.locateCenterOnScreen(
         "./screenshots/ok.png",
-        region=config["regions"]["center"],
+        region=config["regions"]["whole-game"],
         confidence=0.75
     )
     if ok != None:
