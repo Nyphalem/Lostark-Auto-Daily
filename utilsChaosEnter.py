@@ -1,7 +1,7 @@
 import pyautogui
 import pydirectinput
 import logging
-from config import config
+from originConfig import config
 from utils import *
 
 def enterChaos(currentCharacter):

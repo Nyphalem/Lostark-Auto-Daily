@@ -3,8 +3,8 @@ import time
 import random
 from utils import *
 import argparse
-from characters import *
-from abilities import *
+from personalCharacters import *
+from originConfigAbilities import *
 import math
 
 
@@ -46,6 +46,7 @@ def saveAbilitiesScreenshots(characterClass):
 
 
 def usbAbilitiesCommon(key_list):
+    pyautogui.keyDown("g")
     size = len(key_list)
     click_random = random.randint(0, size-1)
     for ability in abilityScreenshots:
@@ -60,7 +61,7 @@ def usbAbilitiesCommon(key_list):
                 region=(left, top, width, height),
             )
             if ability_ready == None:
-                return
+                return False
     pyautogui.keyDown(key_list[click_random])
     for ability in abilityScreenshots:
         if key_list[click_random] == ability["key"]:
@@ -71,15 +72,15 @@ def usbAbilitiesCommon(key_list):
             else:
                 time.sleep(random.uniform(0.3, 0.5))
     pyautogui.keyUp(key_list[click_random])
-    pyautogui.keyDown("g")
     time.sleep(random.uniform(0.3, 0.5))
     pyautogui.keyUp("g")
+    return True
 
 
 def useAbilities(key_list, characterClass):
-    if characterClass == "bard":
-        usbAbilitiesCommon(key_list)
-        return
+    if characterClass != "demonic":
+        if usbAbilitiesCommon(key_list):
+            return True
     if characterClass == "demonic":
         z_full = pyautogui.locateCenterOnScreen(
             ".\screenshots\chaos-class\demonic\z-full.png",
@@ -101,7 +102,7 @@ def useAbilities(key_list, characterClass):
             time.sleep(random.uniform(0.3, 0.5))
             pyautogui.keyUp("z")
             sleepClickOrPressList()
-            return
+            return True
         if z_active != None:
             for ability in key_list_demonic_z:
                 pyautogui.press(ability)
@@ -115,10 +116,11 @@ def useAbilities(key_list, characterClass):
             pyautogui.keyDown("g")
             time.sleep(random.uniform(0.3, 0.5))
             pyautogui.keyUp("g")
-            return
+            return True
         if z_fade != None:
             usbAbilitiesCommon(key_list_demonic)
-            return
+            return True
+    return False
 
 
 def checkBlackScreen():
@@ -395,17 +397,41 @@ def clickTower():
 
 def checkMob():
     mob = pyautogui.locateCenterOnScreen(
-        "./screenshots/chaos-riftcore1.png",
-        confidence=0.6,
+        "./screenshots/chaos-mob.png",
+        confidence=0.8,
         region=config["regions"]["minimap"],
     )
     if mob != None:
+        print("Mob!!!")
         x, y = mob
         realX, realY = calculateMinimapRelative(x, y)
         sleepClickOrPress()
         pydirectinput.click(x=realX, y=realY, button="left")
         sleepClickOrPressLong()
         mouseMoveTo(x=config["screenCenterX"], y=config["screenCenterY"])
+        return True
+    return False
+
+
+def randomMove():
+    x = random.randint(
+        config["screenCenterX"] - config["clickableAreaX"],
+        config["screenCenterX"] + config["clickableAreaX"],
+    )
+    y = random.randint(
+        config["screenCenterY"] - config["clickableAreaY"],
+        config["screenCenterY"] + config["clickableAreaY"],
+    )
+
+    print("random move to x: {} y: {}".format(x, y))
+    pydirectinput.click(x=x, y=y, button=config["move"])
+    sleep(200, 250)
+    pydirectinput.click(x=x, y=y, button=config["move"])
+    sleep(200, 250)
+    pydirectinput.click(
+        x=config["screenCenterX"], y=config["screenCenterY"], button=config["move"]
+    )
+    sleep(100, 150)
 
 
 def combatInFloor1():
@@ -413,7 +439,10 @@ def combatInFloor1():
     while (1):
         checkHealth()
 
-        useAbilities(key_list, characters[characterIndex]["class"])
+        if useAbilities(key_list, characters[characterIndex]["class"]):
+            if characters[characterIndex]["class"] != "bard":
+                if not checkMob():
+                    randomMove()
 
         if checkBlackScreen():
             return
@@ -428,7 +457,10 @@ def combatInFloor2():
     while (1):
         checkHealth()
 
-        useAbilities(key_list, characters[characterIndex]["class"])
+        if useAbilities(key_list, characters[characterIndex]["class"]):
+            if characters[characterIndex]["class"] != "bard":
+                if not checkMob():
+                    randomMove()
 
         prepareUltCnt += 1
         if prepareUltCnt == 10:
@@ -443,7 +475,10 @@ def combatInFloor2():
         checkHealth()
         checkBoss()
 
-        useAbilities(key_list, characters[characterIndex]["class"])
+        if useAbilities(key_list, characters[characterIndex]["class"]):
+            if characters[characterIndex]["class"] != "bard":
+                if not checkMob():
+                    randomMove()
 
         if checkBlackScreen() and prepareUltCnt > 30:
             return
@@ -454,10 +489,11 @@ def combatInFloor2():
 
 def combatInFloor3():
     print("------------combatInFloor3------------")
+    prepareUltCnt = 0
     while (1):
+        prepareUltCnt += 1
         checkHealth()
         checkAsh()
-        #checkMob()
 
         # Tower
         x, y = checkTower()
@@ -469,13 +505,15 @@ def combatInFloor3():
             mouseMoveTo(x=config["screenCenterX"], y=config["screenCenterY"])
         clickTower()
 
-        useAbilities(key_list_ult, characters[characterIndex]["class"])
+        if useAbilities(key_list_ult, characters[characterIndex]["class"]):
+            if not checkMob():
+                randomMove()
 
         if checkChaosFinish():
             return
 
-        if checkTimeout() =="TIMEOUT":
-            return
+        if prepareUltCnt >= 30 and checkTimeout() == "TIMEOUT":
+            return "TIMEOUT"
 
 
 def stub():

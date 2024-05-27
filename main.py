@@ -1,5 +1,5 @@
-from config import config
-from abilities import abilities
+from originConfig import config
+from originConfigAbilities import abilities
 import pyautogui
 import pydirectinput
 import time
@@ -9,7 +9,7 @@ from datetime import datetime
 from utils import *
 from utilsChaosEnter import *
 import logging
-import desire
+import utilsDesire
 
 
 def main():
@@ -159,7 +159,7 @@ def main():
                         sleepClickOrPressLong()
                         pydirectinput.click(x=x, y=y, button="left")
                         sleepClickOrPressLong()
-                    desire.desire()
+                    utilsDesire.desire()
                     sleepCommonProcess()
                 return
 

@@ -1,4 +1,4 @@
-from characters import characters
+from personalCharacters import characters
 
 config = {
     "mainCharacter": 0,  # must be in between number 0 to len(characters) - 1 (0 is the first character)
@@ -25,7 +25,7 @@ config = {
         "buffs": (625, 780, 300, 60),
         "center": (685, 280, 600, 420),
         "portal": (0, 37, 1920, 1080),
-        "chaos-remain-time": (200, 0, 400, 200),
+        "chaos-remain-time": (353, 103, 120, 40),
     },
     "screenResolutionX": 1920,
     "screenResolutionY": 1080,

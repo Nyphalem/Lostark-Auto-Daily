@@ -1,4 +1,4 @@
-from config import config
+from originConfig import config
 import time
 import pydirectinput
 import logging
@@ -9,7 +9,7 @@ logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s %(levelname)s: %(message)s',
                     datefmt='%Y-%m-%d %H:%M:%S')
 
-config_file_path = 'config.json'
+config_file_path = 'personalConfig.json'
 
 pydirectinput.PAUSE = 0.05
 newStates = {
