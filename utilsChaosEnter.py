@@ -4,86 +4,89 @@ import logging
 from originConfig import config
 from utils import *
 
-def enterChaos(currentCharacter):
+def chaosEnter(currentCharacter):
     sleepCommonProcess()
-    while True:
-        pydirectinput.keyDown("alt")
-        sleepClickOrPress()
-        pydirectinput.press("q")
-        sleepClickOrPress()
-        pydirectinput.keyUp("alt")
-        sleepClickOrPressLong()
-
-        mouseMoveTo(x=886, y=316)
-        sleepClickOrPress()
-        pydirectinput.click(x=886, y=316, button="left")
-        sleepClickOrPress()
-        mouseMoveTo(x=886, y=316)
-        sleepClickOrPress()
-        pydirectinput.click(x=886, y=316, button="left")
-        sleepClickOrPressLong()
-
-        # select chaos dungeon level based on current Character
-        _curr = config["characters"][currentCharacter]
-        chaosTabPosition = {
-            # punika
-            1100: [[1317, 256], [411, 382]],
-            1310: [[1317, 256], [411, 455]],
-            1325: [[1317, 256], [411, 525]],
-            1340: [[1317, 256], [411, 580]],
-            1355: [[1317, 256], [411, 655]],
-            1370: [[1317, 256], [411, 731]],
-            1385: [[1317, 256], [411, 796]],
-            1400: [[1317, 256], [411, 865]],
-            # south vern
-            1415: [[1561, 255], [411, 382]],
-            1445: [[1561, 255], [411, 455]],
-            1475: [[1561, 255], [411, 525]],
-            1490: [[1561, 255], [411, 580]],
-            1520: [[1561, 255], [411, 655]],
-        }
-
-        mouseMoveTo(
-            x=chaosTabPosition[_curr["ilvl-aor"]][0][0],
-            y=chaosTabPosition[_curr["ilvl-aor"]][0][1],
-        )
-        sleepClickOrPressLong()
-        pydirectinput.click(
-            x=chaosTabPosition[_curr["ilvl-aor"]][0][0],
-            y=chaosTabPosition[_curr["ilvl-aor"]][0][1],
-            button="left",
-        )
-        sleepClickOrPressLong()
-
-        mouseMoveTo(
-            x=chaosTabPosition[_curr["ilvl-aor"]][1][0],
-            y=chaosTabPosition[_curr["ilvl-aor"]][1][1],
-        )
-        sleepClickOrPressLong()
-        pydirectinput.click(
-            x=chaosTabPosition[_curr["ilvl-aor"]][1][0],
-            y=chaosTabPosition[_curr["ilvl-aor"]][1][1],
-            button="left",
-        )
-        sleepClickOrPressLong()
-
-        enterButton = pyautogui.locateCenterOnScreen(
-            "./screenshots/enterButton.png",
-            confidence=0.75,
-        )
-        if enterButton != None:
-            x, y = enterButton
-            mouseMoveTo(x=x, y=y)
-            sleepClickOrPressLong()
-            pydirectinput.click(x=x, y=y, button="left")
-            sleepClickOrPress()
-            break
-
-    mouseMoveTo(x=914, y=638)
-    sleepClickOrPressLong()
-    pydirectinput.click(x=x, y=y, button="left")
+    logging.info("[Charac]: <" + str(currentCharacter) + ">: " + "[Chaos]: {Choose}")
+    pydirectinput.keyDown("alt")
+    sleepClickOrPress()
+    pydirectinput.press("q")
+    sleepClickOrPress()
+    pydirectinput.keyUp("alt")
     sleepClickOrPressLong()
 
-    #TODO: move to main.py
-    logging.info("[Charac]: " + str(currentCharacter) + ": " + "[Status]: floor1")
-    return True
+    mouseMoveTo(x=886, y=316)
+    sleepClickOrPress()
+    pydirectinput.click(x=886, y=316, button="left")
+    sleepClickOrPress()
+    mouseMoveTo(x=886, y=316)
+    sleepClickOrPress()
+    pydirectinput.click(x=886, y=316, button="left")
+    sleepClickOrPressLong()
+
+    # select chaos dungeon level based on current Character
+    _curr = config["characters"][currentCharacter]
+    chaosTabPosition = {
+        # punika
+        1100: [[1320, 270], [410, 382+20]],
+        1310: [[1320, 270], [410, 455+20]],
+        1325: [[1320, 270], [410, 525+20]],
+        1340: [[1320, 270], [410, 580+20]],
+        1355: [[1320, 270], [410, 655+20]],
+        1370: [[1320, 270], [410, 731+20]],
+        1385: [[1320, 270], [410, 796+20]],
+        1400: [[1320, 270], [410, 865+20]],
+        # south vern
+        1415: [[1560, 265], [410, 382+20]],
+        1445: [[1560, 265], [410, 455+20]],
+        1475: [[1560, 265], [410, 525+20]],
+        1490: [[1560, 265], [410, 580+20]],
+        1520: [[1560, 265], [410, 655+20]],
+        1540: [[1560, 265], [410, 731+20]],
+        1560: [[1560, 265], [410, 796+20]],
+    }
+
+    mouseMoveTo(
+        x=chaosTabPosition[_curr["ilvl-aor"]][0][0],
+        y=chaosTabPosition[_curr["ilvl-aor"]][0][1],
+    )
+    sleepClickOrPressLong()
+    pydirectinput.click(
+        x=chaosTabPosition[_curr["ilvl-aor"]][0][0],
+        y=chaosTabPosition[_curr["ilvl-aor"]][0][1],
+        button="left",
+    )
+    sleepClickOrPressLong()
+    mouseMoveTo(
+        x=chaosTabPosition[_curr["ilvl-aor"]][1][0],
+        y=chaosTabPosition[_curr["ilvl-aor"]][1][1],
+    )
+    sleepClickOrPressLong()
+    pydirectinput.click(
+        x=chaosTabPosition[_curr["ilvl-aor"]][1][0],
+        y=chaosTabPosition[_curr["ilvl-aor"]][1][1],
+        button="left",
+    )
+    sleepClickOrPressLong()
+
+    enterButton = pyautogui.locateCenterOnScreen(
+        "./screenshots/chaos-enter.png",
+        confidence=0.75,
+    )
+    if enterButton != None:
+        x, y = enterButton
+        mouseMoveTo(x=x, y=y)
+        sleepClickOrPressLong()
+        pydirectinput.click(x=x, y=y, button="left")
+        sleepClickOrPressLong()
+
+        # press confirm
+        mouseMoveTo(x=914, y=638)
+        sleepClickOrPressLong()
+        pydirectinput.click(x=914, y=638, button="left")
+        sleepClickOrPressLong()
+        logging.info("[Charac]: <" + str(currentCharacter) + ">: " + "[Chaos]: {Enter}")
+        sleepTransportLoading()
+        return True
+
+    logging.info("[Charac]: <" + str(currentCharacter) + ">: " + "[Chaos]: {Not Enter}")
+    return False

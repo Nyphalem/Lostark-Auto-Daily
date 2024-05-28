@@ -4,6 +4,7 @@ import time
 import random
 import win32gui
 import logging
+from utils import *
 
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s %(levelname)s: %(message)s',
@@ -22,62 +23,57 @@ def check_hwnd(hwnd):
 
 
 def waitForSwitchToLostArk():
-    logging.info("5秒后开刷！！！")
+    logging.info("2秒后开刷")
     pyautogui.click(x=1085, y=647, clicks=1, button='right')
-    time.sleep(5)
+    time.sleep(2)
 
 
 def click_all():
     # automatically open inventory
     bagExist = pyautogui.locateCenterOnScreen(
         "./screenshots/bag.png",
-        confidence=0.7,
+        confidence=0.8,
         grayscale=True
     )
     if bagExist == None:
         pyautogui.keyDown("i")
-        time.sleep(random.uniform(0.3, 0.5))
+        sleepClickOrPress()
         pyautogui.keyUp("i")
+    sleepClickOrPressLong()
 
     i = 0
-    print("---------------------------")
+    logging.info("------------------------------------")
     while (1):
         bagExist = pyautogui.locateCenterOnScreen(
             "./screenshots/bag.png",
-            confidence=0.7,
+            confidence=0.8,
             grayscale=True
         )
         if bagExist == None:
-            print("---------------------------")
+            logging.info("------------------------------------")
             logging.info("5秒后返回领地并停止程序")
-            time.sleep(random.uniform(5,5.5))
+            sleepCommonProcess()
             pyautogui.keyDown("f2")
-            time.sleep(random.uniform(0.3, 0.5))
+            sleepClickOrPress()
             pyautogui.keyUp("f2")
-            time.sleep(random.uniform(10, 12))
+            sleepTransportLoading()
             break
 
         i = i + 1
         size = len(key_list)
         click_random = random.randint(0, size-1)
-        #'''
         pyautogui.click(x=1085, y=647, clicks=0, button='right')
         pyautogui.keyDown(key_list[click_random])
-        time.sleep(random.uniform(0.3, 0.5))
+        sleepClickOrPress()
         pyautogui.keyUp(key_list[click_random])
-        #'''
-        '''
-        if i % 20 == 0:
-            pyautogui.click(x=906, y=397, clicks=1, button='left')
-            time.sleep(random.uniform(0.3, 0.5))
-        '''
+
         if i % 1000 == 0:
             logging.info("尝试返回领地")
-            time.sleep(random.uniform(5,5.5))
+            sleepCommonProcess()
             pyautogui.keyDown("f2")
-            time.sleep(random.uniform(0.3, 0.5))
+            sleepClickOrPress()
             pyautogui.keyUp("f2")
-            time.sleep(random.uniform(20, 22))
+            sleepTransportLoading()
 
             bagExist = pyautogui.locateCenterOnScreen(
                 "./screenshots/bag.png",
@@ -91,34 +87,34 @@ def click_all():
                 logging.info("成功返回领地！")
 
             logging.info("move!")
-            time.sleep(random.uniform(1.3, 2.5))
+            sleepClickOrPressLong()
             pyautogui.leftClick(x=960, y=540, interval=0.0, duration=0.0)
-            time.sleep(random.uniform(1.3, 2.5))
+            sleepClickOrPressLong()
             pyautogui.leftClick(x=929, y=523, interval=0.0, duration=0.0)
-            time.sleep(random.uniform(100,200))
+            sleepWink()
             logging.info("炮管冷却完毕")
 
             bagExist = pyautogui.locateCenterOnScreen(
                 "./screenshots/bag.png",
-                confidence=0.6,
+                confidence=0.8,
                 grayscale=True
             )
             if bagExist == None:
                 pyautogui.keyDown("f5")
-                time.sleep(random.uniform(0.3, 0.5))
+                sleepClickOrPress()
                 pyautogui.keyUp("f5")
                 logging.info("返回战场")
-                time.sleep(random.uniform(20, 22))
+                sleepTransportLoading()
 
             bagExist = pyautogui.locateCenterOnScreen(
                 "./screenshots/bag.png",
-                confidence=0.6,
+                confidence=0.8,
                 grayscale=True
             )
             if bagExist == None:
-                time.sleep(random.uniform(5,5.5))
+                sleepCommonProcess()
                 pyautogui.keyDown("i")
-                time.sleep(random.uniform(0.3, 0.5))
+                sleepClickOrPress()
                 pyautogui.keyUp("i")
 
             i = 0
@@ -128,11 +124,7 @@ def desire():
     waitForSwitchToLostArk()
     hwnd = win32gui.GetForegroundWindow()
     check_hwnd(hwnd)
-    #global config
-    #config = loadConfig()
-    #config["hwnd"] = hwnd
     click_all()
-    # get_cursor_position()
 
 
 if __name__ == '__main__':

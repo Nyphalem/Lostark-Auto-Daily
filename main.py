@@ -1,5 +1,4 @@
 from originConfig import config
-from originConfigAbilities import abilities
 import pyautogui
 import pydirectinput
 import time
@@ -8,19 +7,22 @@ from datetime import timedelta
 from datetime import datetime
 from utils import *
 from utilsChaosEnter import *
+from utilsChaosCombat import *
 import logging
 import utilsDesire
 
 
 def main():
-    print("------------------------------------")
-    print("5秒后开始")
-    print("------------------------------------")
+    logging.info("------------------------------------")
+    logging.info("5秒后开始")
+    logging.info("------------------------------------")
 
     # Instantiate the parser
     parser = argparse.ArgumentParser(description="Optional app description")
     parser.add_argument("--all", action="store_true", help="A boolean switch")
     parser.add_argument("--skip", action="store_true", help="A boolean switch")
+    parser.add_argument("--start", type=int, help="A boolean switch")
+    parser.add_argument("--nochaos", action="store_true", help="A boolean switch")
     args = parser.parse_args()
 
     skip_desire = False
@@ -37,24 +39,19 @@ def main():
         states["multiCharacterMode"] = True
         for i in range(len(config["characters"])):
             states["multiCharacterModeState"].append(2)
-        print(
-            "runs on all characters: {}".format(
-                states["multiCharacterModeState"]
-            )
-        )
-
     if args.skip:
         skip_desire = True
+    if args.start:
+        states["currentCharacter"] = args.start
 
     # Farm in Masyaf
-    print("------------------------------------")
     if needDoFarmingInMasyaf():
-        print("Farming in Masyaf")
+        logging.info("领地日常")
         doFarmingInMasyaf()
         update_status_value(config_file_path, 'need_do_farmingInMasyaf', False)
     else:
-        print("Skip Farming in Masyaf")
-    print("------------------------------------")
+        logging.info("跳过领地日常")
+    logging.info("------------------------------------")
 
     # save bot start time
     states["botStartTime"] = int(time.time_ns() / 1000000)
@@ -67,8 +64,6 @@ def main():
             # switch character
             if states["multiCharacterMode"]:
                 if sum(states["multiCharacterModeState"]) == 0:
-                    logging.info("[Charac]: <" + str(states["currentCharacter"]) + ">: " + "[Chaos]: {finish}")
-
                     # daily quest
                     if needDoDailyQuest():
                         doGuildDonation()
@@ -82,11 +77,13 @@ def main():
                         doGuildVoyage()
                         update_status_value(config_file_path, 'need_do_weeklyQuest', False)
 
-                    # back to manor
+                    # back to Masyaf
                     pydirectinput.press("f2")
                     sleepTransportLoading()
 
-                    # finish all characters' daily and switch to character #1 to desire island
+                    # finish all characters' daily and：
+                    # 1.switch to character #1 to desire island
+                    # 2.switch to character #0 to terminate
                     states["multiCharacterMode"] = False
                     states["multiCharacterModeState"] = []
                     sleepCommonProcess()
@@ -97,13 +94,11 @@ def main():
                     sleepCommonProcess()
 
                     logging.info("执行时间: " + str(processMin) + "m " + str(processSec) + "s " + str(processMsc) + "ms")
-                    print("------------------------------------")
-                    print("所有角色打卡完毕")
-                    print("------------------------------------")
+                    logging.info("------------------------------------")
+                    logging.info("所有角色打卡完毕")
+                    logging.info("------------------------------------")
 
                 elif states["multiCharacterModeState"][states["currentCharacter"]] <= 0:
-                    logging.info("[Charac]: <" + str(states["currentCharacter"]) + ">: " + "[Chaos]: {finish}")
-
                     # daily quest
                     if needDoDailyQuest():
                         doGuildDonation()
@@ -140,7 +135,7 @@ def main():
                     processTime = int(processTime / 60)
                     processMin = processTime
                     logging.info("执行时间: " + str(processMin) + "m " + str(processSec) + "s " + str(processMsc) + "ms")
-                    print("------------------------------------")
+                    logging.info("------------------------------------")
                     continue
                 else:
                     sleepClickOrPress()
@@ -163,19 +158,20 @@ def main():
                     sleepCommonProcess()
                 return
 
-            #TODO: need reserve this?
-            states["instanceStartTime"] = int(time.time_ns() / 1000000)
-            states["abilityScreenshots"] = []
-            states["bossBarLocated"] = False
-
-        logging.info("[Charac]: <" + str(states["currentCharacter"]) + ">: " + "[Chaos]: {enter}")
-        #TODO: enable this -> autoChaos()
+        if not args.nochaos:
+            if chaosEnter(states["currentCharacter"]):
+                chaosCombat(states["currentCharacter"])
         states["multiCharacterModeState"][states["currentCharacter"]] -= 1
-        logging.info("[Charac]: <" + str(states["currentCharacter"]) + ">: " + "[Chaos]: {exit}")
+
+        if states["multiCharacterModeState"][states["currentCharacter"]] <= 0:
+            if not args.nochaos:
+                doRepairMasyaf()
+                doDisenchant()
+            logging.info("[Charac]: <" + str(states["currentCharacter"]) + ">: " + "[Chaos]: {finish}")
 
 
 #===========================================================================
-# Common Action functions
+# Detail Action functions
 #===========================================================================
 def doFarmingInMasyaf():
     pydirectinput.keyDown('f2')
@@ -317,7 +313,7 @@ def doGuildDonation():
 
     if supportResearch != None:
         x, y = supportResearch
-        logging.info("[Charac]: <" + str(states["currentCharacter"]) + ">: " + "[GuildDonation]: supportResearch")
+        logging.info("[Charac]: <" + str(states["currentCharacter"]) + ">: " + "[GuildDonation]: {supportResearch}")
         mouseMoveTo(x=x, y=y)
         sleepClickOrPress()
         pydirectinput.click(button="left")
@@ -458,6 +454,7 @@ def acceptIvnaWeekly():
     pydirectinput.press("esc")
     sleepCommonProcess()
 
+    logging.info("[Charac]: <" + str(states["currentCharacter"]) + ">: " + "[IvnaWeekly]: {acceptFinish}")
     return
 
 
@@ -506,6 +503,7 @@ def acceptGuildQuest():
     pydirectinput.press("esc")
     sleepCommonProcess()
 
+    logging.info("[Charac]: <" + str(states["currentCharacter"]) + ">: " + "[GuildQuest]: {accpetFinish}")
     return
 
 
@@ -533,6 +531,8 @@ def manageGuildQuest():
     sleepCommonProcess()
     pydirectinput.press("esc")
     sleepCommonProcess()
+
+    logging.info("[Charac]: <" + str(states["currentCharacter"]) + ">: " + "[GuildQuest]: {manageFinish}")
     return
 
 
@@ -650,7 +650,83 @@ def doGuildVoyage():
                 pydirectinput.press("f2")
                 sleepTransportLoading()
 
+    logging.info("[Charac]: <" + str(states["currentCharacter"]) + ">: " + "[GuildVoyage]: {finish}")
     return
+
+
+def needDoWeeklyQuest():
+    now = datetime.now()
+    now -= timedelta(hours = 6)
+    day_of_week_weeklyQuest = now.weekday()
+
+    weekly_quest_status = read_status_value(config_file_path, 'need_do_weeklyQuest')
+
+    if day_of_week_weeklyQuest == 2: # Monday is 0
+        if weekly_quest_status:
+            return True
+        else:
+            logging.info("[Error]: weekly quest already done in Wednesday")
+            return False
+    else:
+        update_status_value(config_file_path, 'need_do_weeklyQuest', True)
+        return False
+
+
+def needDoFarmingInMasyaf():
+    now = datetime.now()
+    now -= timedelta(hours = 6)
+    day_of_week_farmingInMasyaf = now.weekday()
+    prev_day_of_week_farmingInMasyaf = read_status_value(config_file_path, 'day_of_week_farmingInMasyaf')
+    if not day_of_week_farmingInMasyaf == prev_day_of_week_farmingInMasyaf:
+        update_status_value(config_file_path, 'day_of_week_farmingInMasyaf', day_of_week_farmingInMasyaf)
+        update_status_value(config_file_path, 'need_do_farmingInMasyaf', True)
+
+    need_do_farmingInMasyaf = read_status_value(config_file_path, 'need_do_farmingInMasyaf')
+    if need_do_farmingInMasyaf:
+        return True
+    else:
+        return False
+
+
+def needDoDailyQuest():
+    now = datetime.now()
+    now -= timedelta(hours = 6)
+    day_of_week_dailyQuest = now.weekday()
+    prev_day_of_week_dailyQuest = read_status_value(config_file_path, 'day_of_week_dailyQuest')
+    if not day_of_week_dailyQuest == prev_day_of_week_dailyQuest:
+        update_status_value(config_file_path, 'day_of_week_dailyQuest', day_of_week_dailyQuest)
+        update_status_value(config_file_path, 'need_do_dailyQuest', True)
+
+    need_do_dailyQuest = read_status_value(config_file_path, 'need_do_dailyQuest')
+    if need_do_dailyQuest:
+        return True
+    else:
+        return False
+
+
+def doRepairMasyaf():
+    logging.info("[Charac]: <" + str(states["currentCharacter"]) + ">: " + "[Chaos]: {repair}")
+    # TODO: process
+    # 1.F2
+    # 2.transport to farm
+    # 3.move to blackmith
+    # 4.click "interact"
+    # 5.click to repair
+    # 6.esc to main UI
+    # 7.move to safe location to avoid false interact with npc
+    # 8.control sleep time
+    return
+
+
+def doDisenchant():
+    logging.info("[Charac]: <" + str(states["currentCharacter"]) + ">: " + "[Chaos]: {bag neaten}")
+    # TODO: process
+    # 1.press i
+    # if has i
+    # 2.disenchant
+    # 3.sort
+    # if has i
+    # 4.press i
 
 
 def switchToCharacter(index):
@@ -692,57 +768,6 @@ def switchToCharacter(index):
 
     # wait black screen
     sleepTransportLoading()
-
-
-def needDoWeeklyQuest():
-    now = datetime.now()
-    now -= timedelta(hours = 6)
-    day_of_week_weeklyQuest = now.weekday()
-
-    weekly_quest_status = read_status_value(config_file_path, 'need_do_weeklyQuest')
-
-    if day_of_week_weeklyQuest == 2: # Monday is 0
-        if weekly_quest_status:
-            return True
-        else:
-            logging.info("weekly quest already done in Wednesday")
-            return False
-    else:
-        update_status_value(config_file_path, 'need_do_weeklyQuest', True)
-        return False
-
-
-def needDoFarmingInMasyaf():
-    now = datetime.now()
-    now -= timedelta(hours = 6)
-    print(now)
-    day_of_week_farmingInMasyaf = now.weekday()
-    prev_day_of_week_farmingInMasyaf = read_status_value(config_file_path, 'day_of_week_farmingInMasyaf')
-    if not day_of_week_farmingInMasyaf == prev_day_of_week_farmingInMasyaf:
-        update_status_value(config_file_path, 'day_of_week_farmingInMasyaf', day_of_week_farmingInMasyaf)
-        update_status_value(config_file_path, 'need_do_farmingInMasyaf', True)
-
-    need_do_farmingInMasyaf = read_status_value(config_file_path, 'need_do_farmingInMasyaf')
-    if need_do_farmingInMasyaf:
-        return True
-    else:
-        return False
-
-
-def needDoDailyQuest():
-    now = datetime.now()
-    now -= timedelta(hours = 6)
-    day_of_week_dailyQuest = now.weekday()
-    prev_day_of_week_dailyQuest = read_status_value(config_file_path, 'day_of_week_dailyQuest')
-    if not day_of_week_dailyQuest == prev_day_of_week_dailyQuest:
-        update_status_value(config_file_path, 'day_of_week_dailyQuest', day_of_week_dailyQuest)
-        update_status_value(config_file_path, 'need_do_dailyQuest', True)
-
-    need_do_dailyQuest = read_status_value(config_file_path, 'need_do_dailyQuest')
-    if need_do_dailyQuest:
-        return True
-    else:
-        return False
 
 
 if __name__ == "__main__":

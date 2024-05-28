@@ -31,6 +31,10 @@ def sleep(min, max):
     time.sleep(sleepTime)
 
 
+def sleepWink():
+    sleep(0, 200)
+
+
 def sleepClickOrPress():
     sleep(300, 500)
 
@@ -71,7 +75,7 @@ def read_status_value(file_path, key):
             config_data = json.load(file)
             return config_data.get(key, None)
     except FileNotFoundError:
-        logging.info("Config file not found.")
+        logging.info("[Error]: Config file not found.")
         return None
 
 
@@ -83,7 +87,7 @@ def update_status_value(file_path, key, value):
         with open(file_path, 'w') as file:
             json.dump(config_data, file, indent=4)
     except FileNotFoundError:
-        logging.info("Config file not found.")
+        logging.info("[Error]: Config file not found.")
     except json.JSONDecodeError:
-        logging.info("Error decoding JSON.")
+        logging.info("[Error]: decoding JSON.")
 
