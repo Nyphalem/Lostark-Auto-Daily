@@ -192,7 +192,7 @@ def checkHealth():
         r2, g, b = pyautogui.pixel(x - 2, y)
         r3, g, b = pyautogui.pixel(x + 2, y)
         if r1 < 30 or r2 < 30 or r3 < 30:
-            logging.info("[Chaos]: [health portion]")
+            logging.info("[Chaos]: [health potion]")
             pydirectinput.press(config["healthPot"])
     return
 
@@ -498,6 +498,7 @@ def combatInFloor2():
     prepareUltCnt = 0
     while (1):
         checkHealth()
+        checkDeath()
 
         if useAbilities(key_list_common, characters[characterIndex]["class"]):
             if characters[characterIndex]["class"] != "bard":
@@ -532,9 +533,11 @@ def combatInFloor2():
 def combatInFloor3():
     logging.info("---------------Floor3---------------")
     prepareUltCnt = 0
+    i = 0
     while (1):
         prepareUltCnt += 1
         checkHealth()
+        checkDeath()
         checkAsh()
 
         # Tower
@@ -547,18 +550,19 @@ def combatInFloor3():
             mouseMoveTo(x=config["screenCenterX"], y=config["screenCenterY"])
         clickTower()
 
-        i = 0
         if useAbilities(key_list_common_ult, characters[characterIndex]["class"]):
-            if not checkMob():
-                i += 1
-                if i == 3:
-                    randomMove()
-                    i = 0
+            checkMob()
+            i += 1
+            if i == 3:
+                randomMove()
+                i = 0
 
         if checkChaosFinish():
+            sleepTransportLoading()
             return
 
         if prepareUltCnt >= 30 and checkTimeout() == "TIMEOUT":
+            sleepTransportLoading()
             return "TIMEOUT"
 
 
@@ -567,8 +571,8 @@ def chaosCombat(index):
     sleepClickOrPress()
     mouseMoveTo(x=config["screenCenterX"], y=config["screenCenterY"])
     sleepClickOrPress()
-    pydirectinput.click(button="right")
     saveAbilitiesScreenshots(characters[characterIndex]["class"])
+    pydirectinput.click(button="right")
     if combatInFloor1() == "TIMEOUT":
         return
     if combatInFloor2() == "TIMEOUT":

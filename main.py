@@ -20,9 +20,9 @@ def main():
     # Instantiate the parser
     parser = argparse.ArgumentParser(description="Optional app description")
     parser.add_argument("--all", action="store_true", help="A boolean switch")
-    parser.add_argument("--skip", action="store_true", help="A boolean switch")
     parser.add_argument("--start", type=int, help="A boolean switch")
     parser.add_argument("--nochaos", action="store_true", help="A boolean switch")
+    parser.add_argument("--skip", action="store_true", help="A boolean switch")
     args = parser.parse_args()
 
     skip_desire = False
@@ -158,7 +158,7 @@ def main():
                     sleepCommonProcess()
                 return
 
-        if not args.nochaos:
+        if not args.nochaos and config["characters"][states["currentCharacter"]]["class"] == "bard":
             if chaosEnter(states["currentCharacter"]):
                 chaosCombat(states["currentCharacter"])
         states["multiCharacterModeState"][states["currentCharacter"]] -= 1
@@ -308,6 +308,7 @@ def doGuildDonation():
 
     supportResearch = pyautogui.locateCenterOnScreen(
         "./screenshots/supportResearch.png",
+        region=config["regions"]["whole-game"],
         confidence=0.8,
     )
 

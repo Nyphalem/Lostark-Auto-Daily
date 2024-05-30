@@ -93,6 +93,33 @@ class TestUI(unittest.TestCase):
             utils.sleepClickOrPress()
 
 
+    '''
+    python -m unittest tests.test_ui.TestUI.test_detectUI_supportResearch
+    '''
+    def test_detectUI_supportResearch(self):
+        while(1):
+            currentTime = int(time.time_ns() / 1000000)
+            diffTime = currentTime - self.startTime
+            if diffTime >= self.coninueTime:
+                break
+
+            try:
+                supportResearch = pyautogui.locateCenterOnScreen(
+                    "./screenshots/supportResearch.png",
+                    region=config["regions"]["whole-game"],
+                    confidence=0.9
+                )
+                if supportResearch != None:
+                    x, y = supportResearch
+                    logging.info("[Test]: [test_detectUI_supportResearch]: supportResearch.png: {" + str(x) + "," + str(y) + "}")
+                else:
+                    logging.info("[Test]: [test_detectUI_supportResearch: supportResearch.png: {NONE}" )
+            except pyautogui.ImageNotFoundException:
+                logging.info("[Test]: [test_detectUI_supportResearch]: supportResearch.png: {NONE}" )
+
+            utils.sleepClickOrPress()
+
+
 def waitForSwitchToLostArk():
     logging.info("[Test]: start after 2s")
     pyautogui.click(x=1085, y=647, clicks=1, button='right')
