@@ -61,10 +61,13 @@ def saveAbilitiesScreenshots(characterClass):
             sleepClickOrPress()
 
 
-def usbAbilitiesCommon(key_list):
+def usbAbilitiesCommon(key_list, characterClass):
     pyautogui.keyDown(config["interact"])
     sleepClickOrPress()
     pyautogui.keyUp(config["interact"])
+
+    if not characterClass in classes_stance:
+        pydirectinput.mouseDown(x=config["screenCenterX"], y=config["screenCenterY"], button="right")
 
     size = len(key_list)
     click_random = random.randint(0, size-1)
@@ -101,12 +104,15 @@ def usbAbilitiesCommon(key_list):
 
     pyautogui.keyUp(key_list[click_random])
 
+    if not characterClass in classes_stance:
+        pydirectinput.mouseUp(x=config["screenCenterX"], y=config["screenCenterY"], button="right")
+
     return True
 
 
 def useAbilities(key_list, characterClass):
     if characterClass == "bard":
-        if usbAbilitiesCommon(key_list):
+        if usbAbilitiesCommon(key_list, characterClass):
             return True
     if characterClass == "holyknight":
         # TODO: check for enable z
@@ -114,7 +120,7 @@ def useAbilities(key_list, characterClass):
             pyautogui.keyDown("z")
             sleepClickOrPress()
             pyautogui.keyUp("z")
-        if usbAbilitiesCommon(key_list_holyknight):
+        if usbAbilitiesCommon(key_list_holyknight, characterClass):
             return True
     if characterClass == "demonic":
         z_full = pyautogui.locateCenterOnScreen(
@@ -151,25 +157,25 @@ def useAbilities(key_list, characterClass):
             pyautogui.keyUp(config["interact"])
             return True
         if z_fade != None:
-            usbAbilitiesCommon(key_list_demonic)
+            usbAbilitiesCommon(key_list_demonic, characterClass)
             return True
     if characterClass == "slayer":
         pyautogui.keyDown("z")
         sleepWink()
         pyautogui.keyUp("z")
         sleepWink()
-        if usbAbilitiesCommon(key_list_slayer):
+        if usbAbilitiesCommon(key_list_slayer, characterClass):
             return True
     if characterClass == "sorceress":
-        if usbAbilitiesCommon(key_list):
+        if usbAbilitiesCommon(key_list, characterClass):
             return True
     if characterClass == "aeromancer":
         # TODO: tuning
-        if usbAbilitiesCommon(key_list_aeromancer):
+        if usbAbilitiesCommon(key_list_aeromancer, characterClass):
             return True
     if characterClass == "blade":
         # TODO: tuning
-        if usbAbilitiesCommon(key_list_blade):
+        if usbAbilitiesCommon(key_list_blade, characterClass):
             return True
     return False
 
@@ -563,13 +569,7 @@ def combatInFloor1():
                 sleepClickOrPressLong()
                 mouseMoveTo(x=config["screenCenterX"], y=config["screenCenterY"])
 
-        if characters[characterIndex]["class"] in classes_stance:
-            pydirectinput.mouseDown(x=config["screenCenterX"], y=config["screenCenterY"], button="right")
-
         useAbilities(key_list_common, characters[characterIndex]["class"])
-
-        if characters[characterIndex]["class"] in classes_stance:
-            pydirectinput.mouseUp(x=config["screenCenterX"], y=config["screenCenterY"], button="right")
 
         if checkBlackScreen():
             return
@@ -596,14 +596,7 @@ def combatInFloor2():
                 sleepClickOrPressLong()
                 mouseMoveTo(x=config["screenCenterX"], y=config["screenCenterY"])
 
-        if characters[characterIndex]["class"] in classes_stance:
-            pydirectinput.mouseDown(x=config["screenCenterX"], y=config["screenCenterY"], button="right")
-
         useAbilities(key_list_common, characters[characterIndex]["class"])
-
-        if characters[characterIndex]["class"] in classes_stance:
-            pydirectinput.mouseUp(x=config["screenCenterX"], y=config["screenCenterY"], button="right")
-
 
         prepareUltCnt += 1
         if prepareUltCnt == 10:
@@ -628,13 +621,7 @@ def combatInFloor2():
                 sleepClickOrPressLong()
                 mouseMoveTo(x=config["screenCenterX"], y=config["screenCenterY"])
 
-        if characters[characterIndex]["class"] in classes_stance:
-            pydirectinput.mouseDown(x=config["screenCenterX"], y=config["screenCenterY"], button="right")
-
         useAbilities(key_list_common, characters[characterIndex]["class"])
-
-        if characters[characterIndex]["class"] in classes_stance:
-            pydirectinput.mouseUp(x=config["screenCenterX"], y=config["screenCenterY"], button="right")
 
         if checkBlackScreen():
             return
@@ -664,18 +651,12 @@ def combatInFloor3():
             mouseMoveTo(x=config["screenCenterX"], y=config["screenCenterY"])
         clickTower()
 
-        if characters[characterIndex]["class"] in classes_stance:
-            pydirectinput.mouseDown(x=config["screenCenterX"], y=config["screenCenterY"], button="right")
-
         if useAbilities(key_list_common_ult, characters[characterIndex]["class"]):
             checkMob()
             moveCnt += 1
             if moveCnt == 3:
                 randomMove()
                 moveCnt = 0
-
-        if characters[characterIndex]["class"] in classes_stance:
-            pydirectinput.mouseUp(x=config["screenCenterX"], y=config["screenCenterY"], button="right")
 
         if checkChaosFinish():
             sleepTransportLoading()
