@@ -51,6 +51,12 @@ class TestMain(unittest.TestCase):
     def test_main_repair(self):
         main.doRepairMasyaf()
 
+    '''
+    python -m unittest tests.test_main_function.TestMain.test_main_buypotion
+    '''
+    def test_main_buypotion(self):
+        main.doBuypotion()
+
 
 def waitForSwitchToLostArk():
     logging.info("[Test]: start after 2s")

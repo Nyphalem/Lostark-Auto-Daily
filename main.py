@@ -21,8 +21,10 @@ def main():
     parser = argparse.ArgumentParser(description="Optional app description")
     parser.add_argument("--all", action="store_true", help="A boolean switch")
     parser.add_argument("--start", type=int, help="A boolean switch")
-    parser.add_argument("--nochaos", action="store_true", help="A boolean switch")
     parser.add_argument("--skip", action="store_true", help="A boolean switch")
+    parser.add_argument("--nochaos", action="store_true", help="A boolean switch")
+    parser.add_argument("--repair", action="store_true", help="A boolean switch")
+    parser.add_argument("--buypotion", action="store_true", help="A boolean switch")
     args = parser.parse_args()
 
     skip_desire = False
@@ -75,6 +77,7 @@ def main():
                         acceptIvnaWeekly()
                         acceptGuildQuest()
                         doGuildVoyage()
+                        doBuypotion()
                         update_status_value(config_file_path, 'need_do_weeklyQuest', False)
 
                     # back to Masyaf
@@ -96,6 +99,9 @@ def main():
                     logging.info("执行时间: " + str(processMin) + "m " + str(processSec) + "s " + str(processMsc) + "ms")
                     logging.info("------------------------------------")
                     logging.info("所有角色打卡完毕")
+                    if sum(states["chaosTimeoutCnt"]):
+                        logging.info("Chaos Timeout Cnt: {}".format(states["chaosTimeoutCnt"]))
+                        logging.info("Chaos Timeout Cnt Total: " + str(sum(states["chaosTimeoutCnt"])))
                     logging.info("------------------------------------")
 
                 elif states["multiCharacterModeState"][states["currentCharacter"]] <= 0:
@@ -109,6 +115,7 @@ def main():
                         acceptIvnaWeekly()
                         acceptGuildQuest()
                         doGuildVoyage()
+                        doBuypotion()
 
                     # back to manor
                     pydirectinput.press("f2")
@@ -158,15 +165,21 @@ def main():
                     sleepCommonProcess()
                 return
 
-        if not args.nochaos:
+        if not args.nochaos and not args.repair and not args.buypotion:
             if chaosEnter(states["currentCharacter"]):
-                chaosCombat(states["currentCharacter"])
+                if not chaosCombat(states["currentCharacter"]):
+                    if states["currentCharacter"] not in states["chaosTimeoutCnt"]:
+                        states["chaosTimeoutCnt"][states["currentCharacter"]] = 1
+                    else:
+                        states["chaosTimeoutCnt"][states["currentCharacter"]] += 1
         states["multiCharacterModeState"][states["currentCharacter"]] -= 1
 
         if states["multiCharacterModeState"][states["currentCharacter"]] <= 0:
-            if not args.nochaos:
+            if not args.nochaos and not args.buypotion:
                 doRepairMasyaf()
                 doDisenchant()
+            if args.buypotion:
+                doBuypotion()
             logging.info("[Charac]: <" + str(states["currentCharacter"]) + ">: " + "[Chaos]: {finish}")
 
 
@@ -860,6 +873,101 @@ def doDisenchant():
     )
     if bag_sort != None:
         pydirectinput.press("i")
+
+
+def doBuypotion():
+    try:
+        logging.info("[Charac]: <" + str(states["currentCharacter"]) + ">: " + "[Chaos]: {buy potion}")
+    except:
+        logging.info("testcase")
+
+    pydirectinput.press("f2")
+    sleepTransportLoading()
+
+    # move to blackmith
+    repair_teleport = pyautogui.locateCenterOnScreen(
+        "./screenshots/repair-teleport.png",
+        confidence=0.7,
+    )
+    if repair_teleport != None:
+        x, y = repair_teleport
+        mouseMoveTo(x=x, y=y)
+        sleepClickOrPress()
+        pydirectinput.click(x=x, y=y, button="left")
+        sleepClickOrPressLong()
+        repair_teleport_farmerland = pyautogui.locateCenterOnScreen(
+            "./screenshots/repair-teleport-farmerland.png",
+            confidence=0.7,
+        )
+        if repair_teleport_farmerland != None:
+            x, y = repair_teleport_farmerland
+            mouseMoveTo(x=x, y=y)
+            sleepClickOrPress()
+            pydirectinput.click(x=x, y=y, button="left")
+            sleepClickOrPressLong()
+            repair_teleport_farmerland_confirm = pyautogui.locateCenterOnScreen(
+                "./screenshots/repair-teleport-farmerland-confirm.png",
+                confidence=0.7,
+            )
+            if repair_teleport_farmerland_confirm != None:
+                x, y = repair_teleport_farmerland_confirm
+                mouseMoveTo(x=x, y=y)
+                sleepClickOrPress()
+                pydirectinput.click(x=x, y=y, button="left")
+                sleepCommonProcess()
+
+                move_list = [[92,722],[100,662],[693,207],
+                            [236,546],[395,481],[245,460]]
+                for move in move_list:
+                    mouseMoveTo(x=move[0], y=move[1])
+                    sleepClickOrPress()
+                    pydirectinput.click(x=move[0], y=move[1], button="left")
+                    sleepCommonProcess()
+
+                pyautogui.keyDown(config["interact"])
+                sleepClickOrPress()
+                pyautogui.keyUp(config["interact"])
+                sleepClickOrPressLong()
+
+                mouseMoveTo(x=217, y=305)
+                sleepClickOrPress()
+                pydirectinput.click(x=217, y=305, button="left")
+                sleepClickOrPressLong()
+
+                pyautogui.keyDown("shift")
+                sleepClickOrPress()
+                pydirectinput.click(x=217, y=305, button="right")
+                sleepClickOrPress()
+                pyautogui.keyUp("shift")
+
+                pyautogui.press("9")
+                sleepClickOrPress()
+                pyautogui.press("9")
+                sleepClickOrPress()
+
+                buypotion_confirm = pyautogui.locateCenterOnScreen(
+                    "./screenshots/buypotion-confirm.png",
+                    confidence=0.7,
+                )
+                if buypotion_confirm != None:
+                    x, y = buypotion_confirm
+                    mouseMoveTo(x=x, y=y)
+                    sleepClickOrPress()
+                    pydirectinput.click(x=x, y=y, button="left")
+                    sleepClickOrPressLong()
+                    buypotion_buy = pyautogui.locateCenterOnScreen(
+                        "./screenshots/buypotion-buy.png",
+                        confidence=0.7,
+                    )
+                    if buypotion_buy != None:
+                        x, y = buypotion_buy
+                        mouseMoveTo(x=x, y=y)
+                        sleepClickOrPress()
+                        pydirectinput.click(x=x, y=y, button="left")
+                        sleepClickOrPressLong()
+
+                        pydirectinput.press("esc")
+                        sleepClickOrPressLong()
 
 
 def switchToCharacter(index):

@@ -22,6 +22,7 @@ newStates = {
     "multiCharacterMode": False,
     "currentCharacter": config["mainCharacter"],
     "multiCharacterModeState": [],
+    "chaosTimeoutCnt": []
 }
 
 def sleep(min, max):

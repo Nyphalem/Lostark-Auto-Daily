@@ -6,8 +6,6 @@ import argparse
 from personalCharacters import *
 from originConfigAbilities import *
 import math
-import cv2
-import numpy
 
 
 key_list_common = ['q', 'r', 'w', 'e', 'a', 's', 'd', 'f', 'x']
@@ -62,14 +60,14 @@ def saveAbilitiesScreenshots(characterClass):
 
 
 def usbAbilitiesCommon(key_list, characterClass):
-    logging.info("[Chaos]: [Ab Common ]: in")
+    logging.info("[Chaos]: [Ab Common]: in")
     pyautogui.keyDown(config["interact"])
     sleepClickOrPress()
     pyautogui.keyUp(config["interact"])
 
-    logging.info("[Chaos]: [Ab Common ]: interact done")
+    logging.info("[Chaos]: [Ab Common]: interact done")
 
-    logging.info("[Chaos]: [Ab Common ]: get button")
+    logging.info("[Chaos]: [Ab Common]: get button")
     if not characterClass in classes_stance:
         pydirectinput.mouseDown(x=config["screenCenterX"], y=config["screenCenterY"], button="right")
     size = len(key_list)
@@ -85,14 +83,14 @@ def usbAbilitiesCommon(key_list, characterClass):
                 confidence=0.9,
                 region=(left, top, width, height),
             )
-            logging.info("[Chaos]: [Ab Common ]: ab not ready")
+            logging.info("[Chaos]: [Ab Common]: ab not ready")
             if ability_ready == None:
                 return False
 
     if not characterClass in classes_stance:
         pydirectinput.mouseUp(x=config["screenCenterX"], y=config["screenCenterY"], button="right")
 
-    logging.info("[Chaos]: [Ab Common ]: ad ready")
+    logging.info("[Chaos]: [Ab Common]: ad ready")
 
     pyautogui.keyDown(key_list[click_random])
 
@@ -112,7 +110,7 @@ def usbAbilitiesCommon(key_list, characterClass):
                 sleepClickOrPress()
 
     pyautogui.keyUp(key_list[click_random])
-    logging.info("[Chaos]: [Ab Common ]: out")
+    logging.info("[Chaos]: [Ab Common]: out")
 
     return True
 
@@ -188,9 +186,11 @@ def useAbilities(key_list, characterClass):
 
 
 def checkBlackScreen():
-    x, y = (131, 1103)
-    r, g, b = pyautogui.pixel(x, y)
-    if r + g + b < 60:
+    x1, y1 = (131, 1103)
+    x2, y2 = (195, 1103)
+    r1, g1, b1 = pyautogui.pixel(x1, y1)
+    r2, g2, b2 = pyautogui.pixel(x2, y2)
+    if r1 + g1 + b1 < 60 and r2 + g2 + b2 < 60:
         logging.info("[Chaos]: [black    ]")
         mouseMoveTo(x=config["screenCenterX"], y=config["screenCenterY"])
         return True
@@ -682,12 +682,16 @@ def chaosCombat(index):
     saveAbilitiesScreenshots(characters[characterIndex]["class"])
     pydirectinput.click(button="right")
     if combatInFloor1() == "TIMEOUT":
-        return
+        logging.info("------------Chaos Finish------------")
+        return False
     if combatInFloor2() == "TIMEOUT":
-        return
-    combatInFloor3()
+        logging.info("------------Chaos Finish------------")
+        return False
+    if combatInFloor3() == "TIMEOUT":
+        logging.info("------------Chaos Finish------------")
+        return False
     logging.info("------------Chaos Finish------------")
-    return
+    return True
 
 
 def stub():
