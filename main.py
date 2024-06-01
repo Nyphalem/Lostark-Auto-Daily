@@ -19,12 +19,12 @@ def main():
 
     # Instantiate the parser
     parser = argparse.ArgumentParser(description="Optional app description")
-    parser.add_argument("--all", action="store_true", help="A boolean switch")
-    parser.add_argument("--start", type=int, help="A boolean switch")
-    parser.add_argument("--skip", action="store_true", help="A boolean switch")
-    parser.add_argument("--nochaos", action="store_true", help="A boolean switch")
-    parser.add_argument("--repair", action="store_true", help="A boolean switch")
-    parser.add_argument("--buypotion", action="store_true", help="A boolean switch")
+    parser.add_argument("--all", action="store_true", help="所有号都运行")
+    parser.add_argument("--start", type=int, help="从哪个号开始运行")
+    parser.add_argument("--skip", action="store_true", help="跳过渴望岛")
+    parser.add_argument("--nochaos", action="store_true", help="不打混沌地牢")
+    parser.add_argument("--repair", action="store_true", help="只修理")
+    parser.add_argument("--buypotion", action="store_true", help="只买药")
     args = parser.parse_args()
 
     skip_desire = False
