@@ -66,8 +66,6 @@ def usbAbilitiesCommon(key_list):
     sleepClickOrPress()
     pyautogui.keyUp(config["interact"])
 
-    pydirectinput.mouseDown(x=config["screenCenterX"], y=config["screenCenterY"], button="right")
-
     size = len(key_list)
     click_random = random.randint(0, size-1)
     for ability in abilityScreenshots:
@@ -102,8 +100,6 @@ def usbAbilitiesCommon(key_list):
                 sleepClickOrPress()
 
     pyautogui.keyUp(key_list[click_random])
-
-    pydirectinput.mouseUp(x=config["screenCenterX"], y=config["screenCenterY"], button="right")
 
     return True
 
@@ -567,7 +563,13 @@ def combatInFloor1():
                 sleepClickOrPressLong()
                 mouseMoveTo(x=config["screenCenterX"], y=config["screenCenterY"])
 
+        if characters[characterIndex]["class"] in classes_stance:
+            pydirectinput.mouseDown(x=config["screenCenterX"], y=config["screenCenterY"], button="right")
+
         useAbilities(key_list_common, characters[characterIndex]["class"])
+
+        if characters[characterIndex]["class"] in classes_stance:
+            pydirectinput.mouseUp(x=config["screenCenterX"], y=config["screenCenterY"], button="right")
 
         if checkBlackScreen():
             return
@@ -594,7 +596,14 @@ def combatInFloor2():
                 sleepClickOrPressLong()
                 mouseMoveTo(x=config["screenCenterX"], y=config["screenCenterY"])
 
+        if characters[characterIndex]["class"] in classes_stance:
+            pydirectinput.mouseDown(x=config["screenCenterX"], y=config["screenCenterY"], button="right")
+
         useAbilities(key_list_common, characters[characterIndex]["class"])
+
+        if characters[characterIndex]["class"] in classes_stance:
+            pydirectinput.mouseUp(x=config["screenCenterX"], y=config["screenCenterY"], button="right")
+
 
         prepareUltCnt += 1
         if prepareUltCnt == 10:
@@ -619,7 +628,13 @@ def combatInFloor2():
                 sleepClickOrPressLong()
                 mouseMoveTo(x=config["screenCenterX"], y=config["screenCenterY"])
 
+        if characters[characterIndex]["class"] in classes_stance:
+            pydirectinput.mouseDown(x=config["screenCenterX"], y=config["screenCenterY"], button="right")
+
         useAbilities(key_list_common, characters[characterIndex]["class"])
+
+        if characters[characterIndex]["class"] in classes_stance:
+            pydirectinput.mouseUp(x=config["screenCenterX"], y=config["screenCenterY"], button="right")
 
         if checkBlackScreen():
             return
@@ -649,12 +664,18 @@ def combatInFloor3():
             mouseMoveTo(x=config["screenCenterX"], y=config["screenCenterY"])
         clickTower()
 
+        if characters[characterIndex]["class"] in classes_stance:
+            pydirectinput.mouseDown(x=config["screenCenterX"], y=config["screenCenterY"], button="right")
+
         if useAbilities(key_list_common_ult, characters[characterIndex]["class"]):
             checkMob()
             moveCnt += 1
             if moveCnt == 3:
                 randomMove()
                 moveCnt = 0
+
+        if characters[characterIndex]["class"] in classes_stance:
+            pydirectinput.mouseUp(x=config["screenCenterX"], y=config["screenCenterY"], button="right")
 
         if checkChaosFinish():
             sleepTransportLoading()
