@@ -62,13 +62,16 @@ def saveAbilitiesScreenshots(characterClass):
 
 
 def usbAbilitiesCommon(key_list, characterClass):
+    logging.info("[Chaos]: [Ab Common ]: in")
     pyautogui.keyDown(config["interact"])
     sleepClickOrPress()
     pyautogui.keyUp(config["interact"])
 
+    logging.info("[Chaos]: [Ab Common ]: interact done")
+
+    logging.info("[Chaos]: [Ab Common ]: get button")
     if not characterClass in classes_stance:
         pydirectinput.mouseDown(x=config["screenCenterX"], y=config["screenCenterY"], button="right")
-
     size = len(key_list)
     click_random = random.randint(0, size-1)
     for ability in abilityScreenshots:
@@ -82,8 +85,14 @@ def usbAbilitiesCommon(key_list, characterClass):
                 confidence=0.9,
                 region=(left, top, width, height),
             )
+            logging.info("[Chaos]: [Ab Common ]: ab not ready")
             if ability_ready == None:
                 return False
+
+    if not characterClass in classes_stance:
+        pydirectinput.mouseUp(x=config["screenCenterX"], y=config["screenCenterY"], button="right")
+
+    logging.info("[Chaos]: [Ab Common ]: ad ready")
 
     pyautogui.keyDown(key_list[click_random])
 
@@ -103,9 +112,7 @@ def usbAbilitiesCommon(key_list, characterClass):
                 sleepClickOrPress()
 
     pyautogui.keyUp(key_list[click_random])
-
-    if not characterClass in classes_stance:
-        pydirectinput.mouseUp(x=config["screenCenterX"], y=config["screenCenterY"], button="right")
+    logging.info("[Chaos]: [Ab Common ]: out")
 
     return True
 
@@ -554,7 +561,7 @@ def randomMove():
 
 
 def combatInFloor1():
-    logging.info("---------------Floor1---------------")
+    logging.info("------------Chaos Floor1------------")
     while (1):
         checkHealth()
         checkDeath()
@@ -580,7 +587,7 @@ def combatInFloor1():
 
 
 def combatInFloor2():
-    logging.info("---------------Floor2---------------")
+    logging.info("------------Chaos Floor2------------")
     prepareUltCnt = 0
     while (1):
         checkHealth()
@@ -632,7 +639,7 @@ def combatInFloor2():
 
 
 def combatInFloor3():
-    logging.info("---------------Floor3---------------")
+    logging.info("------------Chaos Floor3------------")
     prepareUltCnt = 0
     moveCnt = 0
     while (1):
@@ -679,6 +686,7 @@ def chaosCombat(index):
     if combatInFloor2() == "TIMEOUT":
         return
     combatInFloor3()
+    logging.info("------------Chaos Finish------------")
     return
 
 
