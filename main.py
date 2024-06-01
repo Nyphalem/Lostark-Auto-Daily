@@ -158,7 +158,7 @@ def main():
                     sleepCommonProcess()
                 return
 
-        if not args.nochaos and config["characters"][states["currentCharacter"]]["class"] == "bard":
+        if not args.nochaos:
             if chaosEnter(states["currentCharacter"]):
                 chaosCombat(states["currentCharacter"])
         states["multiCharacterModeState"][states["currentCharacter"]] -= 1
@@ -706,28 +706,160 @@ def needDoDailyQuest():
 
 
 def doRepairMasyaf():
-    logging.info("[Charac]: <" + str(states["currentCharacter"]) + ">: " + "[Chaos]: {repair}")
-    # TODO: process
-    # 1.F2
-    # 2.transport to farm
-    # 3.move to blackmith
-    # 4.click "interact"
-    # 5.click to repair
-    # 6.esc to main UI
-    # 7.move to safe location to avoid false interact with npc
-    # 8.control sleep time
+    try:
+        logging.info("[Charac]: <" + str(states["currentCharacter"]) + ">: " + "[Chaos]: {repair}")
+    except:
+        logging.info("testcase")
+
+    pydirectinput.press("f2")
+    sleepTransportLoading()
+
+    # move to blackmith
+    repair_teleport = pyautogui.locateCenterOnScreen(
+        "./screenshots/repair-teleport.png",
+        confidence=0.7,
+    )
+    if repair_teleport != None:
+        x, y = repair_teleport
+        mouseMoveTo(x=x, y=y)
+        sleepClickOrPress()
+        pydirectinput.click(x=x, y=y, button="left")
+        sleepClickOrPressLong()
+        repair_teleport_farmerland = pyautogui.locateCenterOnScreen(
+            "./screenshots/repair-teleport-farmerland.png",
+            confidence=0.7,
+        )
+        if repair_teleport_farmerland != None:
+            x, y = repair_teleport_farmerland
+            mouseMoveTo(x=x, y=y)
+            sleepClickOrPress()
+            pydirectinput.click(x=x, y=y, button="left")
+            sleepClickOrPressLong()
+            repair_teleport_farmerland_confirm = pyautogui.locateCenterOnScreen(
+                "./screenshots/repair-teleport-farmerland-confirm.png",
+                confidence=0.7,
+            )
+            if repair_teleport_farmerland_confirm != None:
+                x, y = repair_teleport_farmerland_confirm
+                mouseMoveTo(x=x, y=y)
+                sleepClickOrPress()
+                pydirectinput.click(x=x, y=y, button="left")
+                sleepCommonProcess()
+                mouseMoveTo(x=50, y=520)
+                sleepClickOrPress()
+                pydirectinput.click(x=50, y=520, button="left")
+                sleepCommonProcess()
+                mouseMoveTo(x=450, y=521)
+                sleepClickOrPress()
+                pydirectinput.click(x=450, y=521, button="left")
+                sleepCommonProcess()
+                mouseMoveTo(x=1146, y=177)
+                sleepClickOrPress()
+                pydirectinput.click(x=1146, y=177, button="left")
+                sleepCommonProcess()
+
+    # repair
+    pyautogui.keyDown(config["interact"])
+    sleepClickOrPress()
+    pyautogui.keyUp(config["interact"])
+    sleepClickOrPressLong()
+    repair_ui = pyautogui.locateCenterOnScreen(
+        "./screenshots/repair-ui-1.png",
+        confidence=0.7,
+    )
+    if repair_ui != None:
+        x, y = repair_ui
+        mouseMoveTo(x=x, y=y)
+        sleepClickOrPress()
+        pydirectinput.click(x=x, y=y, button="left")
+        sleepClickOrPressLong()
+
+    pydirectinput.press("esc")
+    sleepClickOrPressLong()
+
+    mouseMoveTo(x=822, y=845)
+    sleepClickOrPress()
+    pydirectinput.click(x=822, y=845, button="left")
+    sleepClickOrPressLong()
+
     return
 
 
 def doDisenchant():
-    logging.info("[Charac]: <" + str(states["currentCharacter"]) + ">: " + "[Chaos]: {bag neaten}")
-    # TODO: process
-    # 1.press i
-    # if has i
-    # 2.disenchant
-    # 3.sort
-    # if has i
-    # 4.press i
+    try:
+        logging.info("[Charac]: <" + str(states["currentCharacter"]) + ">: " + "[Chaos]: {bag neaten}")
+    except:
+        logging.info("testcase")
+
+    # open bag
+    sleepClickOrPress()
+    pydirectinput.press("i")
+    sleepClickOrPressLong()
+    bag_sort = pyautogui.locateCenterOnScreen(
+        "./screenshots/bag-sort.png",
+        confidence=0.7,
+        grayscale=True
+    )
+    if bag_sort == None:
+        pydirectinput.press("i")
+
+    # disenchant
+    disenchant = pyautogui.locateCenterOnScreen(
+        "./screenshots/bag-disenchant.png",
+        confidence=0.7,
+        grayscale=True
+    )
+    if disenchant != None:
+        x, y = disenchant
+        mouseMoveTo(x=x, y=y)
+        sleepClickOrPress()
+        pydirectinput.click(x=x, y=y, button="left")
+        sleepClickOrPressLong()
+    pydirectinput.click(x=1100, y=780, button="left")
+    sleepClickOrPressLong()
+    pydirectinput.click(x=1180, y=780, button="left")
+    sleepClickOrPressLong()
+    pydirectinput.click(x=1237, y=839, button="left")
+    sleepClickOrPressLong()
+    confirm = pyautogui.locateCenterOnScreen(
+        "./screenshots/bag-disenchant-confirm.png",
+        confidence=0.7,
+        grayscale=True
+    )
+    if confirm != None:
+        x, y = confirm
+        mouseMoveTo(x=x, y=y)
+        sleepClickOrPress()
+        pydirectinput.click(x=x, y=y, button="left")
+        sleepClickOrPressLong()
+    pydirectinput.press("esc")
+    sleepClickOrPressLong()
+
+    # sort bag
+    bag_sort = pyautogui.locateCenterOnScreen(
+        "./screenshots/bag-sort.png",
+        confidence=0.7,
+        grayscale=True
+    )
+    if bag_sort != None:
+        x, y = bag_sort
+        mouseMoveTo(x=x, y=y)
+        sleepClickOrPress()
+        pydirectinput.click(x=x, y=y, button="left")
+        sleepClickOrPressLong()
+
+    # close bag
+    pydirectinput.press("i")
+    sleepClickOrPressLong()
+
+    # confirm bag closed
+    bag_sort = pyautogui.locateCenterOnScreen(
+        "./screenshots/bag-sort.png",
+        confidence=0.7,
+        grayscale=True
+    )
+    if bag_sort != None:
+        pydirectinput.press("i")
 
 
 def switchToCharacter(index):

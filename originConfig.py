@@ -14,7 +14,7 @@ config = {
     "regions": {
         "minimap": (1599, 76, 291, 257),
         "buffs": (625, 780, 300, 60),
-        "whole-game": (0, 37, 1920, 1080),
+        "whole-game": (0, 0, 1920, 1080),
         "chaos-remain-time": (353, 103, 120, 40),
     },
     "clickableAreaX": 160,

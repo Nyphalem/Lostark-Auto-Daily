@@ -6,6 +6,8 @@ import argparse
 from personalCharacters import *
 from originConfigAbilities import *
 import math
+import cv2
+import numpy
 
 
 key_list_common = ['q', 'r', 'w', 'e', 'a', 's', 'd', 'f', 'x']
@@ -17,13 +19,13 @@ key_list_demonic = ['q', 'r', 'w', 'e', 'a', 's', 'd', 'f']
 key_list_demonic_z = ['q', 'r', 'w', 'e', 'a', 's']
 key_list_demonic_z_reverse = ['s', 'a', 'e', 'w', 'r', 'q']
 
-key_list_gunslinger = ['q', 'r', 'w', 'e', 'a', 's']
-
 key_list_slayer = ['q', 'r', 'w', 'e', 'a', 's', 'd', 'f']
 
 key_list_aeromancer = ['q', 'r', 'w', 'e', 'a', 's', 'd', 'f']
 
 key_list_blade = ['q', 'r', 'w', 'e', 'a', 's', 'd', 'f']
+
+classes_stance = ["bard", "sorceress"]
 
 
 # global constant
@@ -60,10 +62,12 @@ def saveAbilitiesScreenshots(characterClass):
 
 
 def usbAbilitiesCommon(key_list):
-    sleepClickOrPress()
     pyautogui.keyDown(config["interact"])
     sleepClickOrPress()
     pyautogui.keyUp(config["interact"])
+
+    pydirectinput.mouseDown(x=config["screenCenterX"], y=config["screenCenterY"], button="right")
+
     size = len(key_list)
     click_random = random.randint(0, size-1)
     for ability in abilityScreenshots:
@@ -79,7 +83,9 @@ def usbAbilitiesCommon(key_list):
             )
             if ability_ready == None:
                 return False
+
     pyautogui.keyDown(key_list[click_random])
+
     for ability in abilityScreenshots:
         if key_list[click_random] == ability["key"]:
             if ability["cast"] == True:
@@ -94,7 +100,11 @@ def usbAbilitiesCommon(key_list):
                 sleepClickOrPress()
             else:
                 sleepClickOrPress()
+
     pyautogui.keyUp(key_list[click_random])
+
+    pydirectinput.mouseUp(x=config["screenCenterX"], y=config["screenCenterY"], button="right")
+
     return True
 
 
@@ -109,26 +119,6 @@ def useAbilities(key_list, characterClass):
             sleepClickOrPress()
             pyautogui.keyUp("z")
         if usbAbilitiesCommon(key_list_holyknight):
-            return True
-    if characterClass == "gunslinger":
-        # TODO: tuning
-        if usbAbilitiesCommon(key_list_gunslinger):
-            return True
-    if characterClass == "slayer":
-        # TODO: check for enable z
-        if False:
-            pyautogui.keyDown("z")
-            sleepClickOrPress()
-            pyautogui.keyUp("z")
-        if usbAbilitiesCommon(key_list_slayer):
-            return True
-    if characterClass == "aeromancer":
-        # TODO: tuning
-        if usbAbilitiesCommon(key_list_aeromancer):
-            return True
-    if characterClass == "blade":
-        # TODO: tuning
-        if usbAbilitiesCommon(key_list_blade):
             return True
     if characterClass == "demonic":
         z_full = pyautogui.locateCenterOnScreen(
@@ -167,6 +157,24 @@ def useAbilities(key_list, characterClass):
         if z_fade != None:
             usbAbilitiesCommon(key_list_demonic)
             return True
+    if characterClass == "slayer":
+        pyautogui.keyDown("z")
+        sleepWink()
+        pyautogui.keyUp("z")
+        sleepWink()
+        if usbAbilitiesCommon(key_list_slayer):
+            return True
+    if characterClass == "sorceress":
+        if usbAbilitiesCommon(key_list):
+            return True
+    if characterClass == "aeromancer":
+        # TODO: tuning
+        if usbAbilitiesCommon(key_list_aeromancer):
+            return True
+    if characterClass == "blade":
+        # TODO: tuning
+        if usbAbilitiesCommon(key_list_blade):
+            return True
     return False
 
 
@@ -174,7 +182,7 @@ def checkBlackScreen():
     x, y = (131, 1103)
     r, g, b = pyautogui.pixel(x, y)
     if r + g + b < 60:
-        logging.info("[Chaos]: [black screen]")
+        logging.info("[Chaos]: [black    ]")
         mouseMoveTo(x=config["screenCenterX"], y=config["screenCenterY"])
         return True
 
@@ -192,7 +200,7 @@ def checkHealth():
         r2, g, b = pyautogui.pixel(x - 2, y)
         r3, g, b = pyautogui.pixel(x + 2, y)
         if r1 < 30 or r2 < 30 or r3 < 30:
-            logging.info("[Chaos]: [health potion]")
+            logging.info("[Chaos]: [health   ]")
             pydirectinput.press(config["healthPot"])
     return
 
@@ -201,10 +209,12 @@ def checkDeath():
     revive = pyautogui.locateCenterOnScreen(
         "./screenshots/chaos-revive.png",
         region=config["regions"]["whole-game"],
-        confidence=0.9
+        confidence=0.8
     )
     if revive != None:
+        logging.info("[Chaos]: [death    ]")
         x, y = revive
+        sleepClickOrPress()
         mouseMoveTo(x=x, y=y)
         sleepClickOrPress()
         pydirectinput.click(x=x, y=y, button="left")
@@ -212,8 +222,59 @@ def checkDeath():
 
 
 def checkPortal():
-    # TODO: check portal in minimap and move to portal
-    return
+    portal = []
+
+    p_temp = pyautogui.locateCenterOnScreen(
+        "./screenshots/chaos-portal.png",
+        region=config["regions"]["minimap"],
+        confidence=0.6
+    )
+    if p_temp != None:
+        portal.append(p_temp)
+
+    p_temp = pyautogui.locateCenterOnScreen(
+        "./screenshots/chaos-portal-top.png",
+        region=config["regions"]["minimap"],
+        confidence=0.6
+    )
+    if p_temp != None:
+        portal.append(p_temp)
+
+    p_temp = pyautogui.locateCenterOnScreen(
+        "./screenshots/chaos-portal-bottom.png",
+        region=config["regions"]["minimap"],
+        confidence=0.6
+    )
+    if p_temp != None:
+        portal.append(p_temp)
+
+    p_temp = pyautogui.locateCenterOnScreen(
+        "./screenshots/chaos-portal-left.png",
+        region=config["regions"]["minimap"],
+        confidence=0.6
+    )
+    if p_temp != None:
+        portal.append(p_temp)
+
+    p_temp = pyautogui.locateCenterOnScreen(
+        "./screenshots/chaos-portal-right.png",
+        region=config["regions"]["minimap"],
+        confidence=0.6
+    )
+    if p_temp != None:
+        portal.append(p_temp)
+
+    for p in portal:
+        if p != None:
+            logging.info("[Chaos]: [portal   ]")
+            x_m, y_m = p
+            x, y = calculateMinimapRelative(x_m, y_m)
+            sleepClickOrPress()
+            mouseMoveTo(x=x, y=y)
+            sleepClickOrPress()
+            pydirectinput.click(x=x, y=y, button="left")
+            sleepClickOrPressLong()
+            return
 
 
 def checkAsh():
@@ -234,8 +295,7 @@ def checkAsh():
         return
 
 
-def checkBoss():
-    # TODO: check boss in minimap and move to boss
+def checkBossToV():
     bossBar = pyautogui.locateOnScreen(
         "./screenshots/chaos-bossBar.png",
         region=config["regions"]["whole-game"],
@@ -243,6 +303,22 @@ def checkBoss():
     )
     if bossBar != None:
         pyautogui.press(config["awakening"])
+
+
+def checkBoss():
+    boss = pyautogui.locateOnScreen(
+        "./screenshots/chaos-boss.png",
+        region=config["regions"]["minimap"],
+        confidence=0.7
+    )
+    if boss != None:
+        logging.info("[Chaos]: [Boss     ]")
+        x, y = boss
+        realX, realY = calculateMinimapRelative(x, y)
+        sleepClickOrPress()
+        pydirectinput.click(x=realX, y=realY, button="left")
+        sleepClickOrPressLong()
+        mouseMoveTo(x=config["screenCenterX"], y=config["screenCenterY"])
 
 
 def checkChaosFinish():
@@ -310,7 +386,7 @@ def checkTimeout():
                 mouseMoveTo(x=x, y=y)
                 sleepClickOrPressLong()
                 pydirectinput.click(x=x, y=y, button="left")
-                logging.info("[Chaos]: [timeout]")
+                logging.info("[Chaos]: [timeout  ]")
                 return "TIMEOUT"
     return None
 
@@ -333,15 +409,15 @@ def checkTower():
     )
     if tower != None:
         x, y = tower
-        logging.info("[Chaos]: [tower]: " + "image x: {} y: {}".format(x, y))
+        logging.info("[Chaos]: [tower    ]: " + "image x: {} y: {}".format(x, y))
         return x, y
     elif towerTop != None:
         x, y = towerTop
-        logging.info("[Chaos]: [tower]: " + "TOP image x: {} y: {}".format(x, y))
+        logging.info("[Chaos]: [tower    ]: " + "TOP image x: {} y: {}".format(x, y))
         return x, y
     elif towerBot != None:
         x, y = towerBot
-        logging.info("[Chaos]: [tower]: " + "BOT image x: {} y: {}".format(x, y))
+        logging.info("[Chaos]: [tower    ]: " + "BOT image x: {} y: {}".format(x, y))
         return x, y
     return -1, -1
 
@@ -407,7 +483,7 @@ def clickTower():
         pydirectinput.click(
             x=click_x, y=click_y, button=config["move"]
         )
-        logging.info("[Chaos]: [tower]: break tower")
+        logging.info("[Chaos]: [tower    ]: break tower")
         pydirectinput.press(config["meleeAttack"])
         sleepClickOrPress()
         pydirectinput.press(config["meleeAttack"])
@@ -425,7 +501,7 @@ def clickTower():
         pydirectinput.click(
             x=click_x, y=click_y, button=config["move"]
         )
-        logging.info("[Chaos]: [tower]: break tower")
+        logging.info("[Chaos]: [tower    ]: break tower")
         pydirectinput.press(config["meleeAttack"])
         sleepClickOrPress()
         pydirectinput.press(config["meleeAttack"])
@@ -443,7 +519,7 @@ def checkMob():
         region=config["regions"]["minimap"],
     )
     if mob != None:
-        logging.info("[Chaos]: [mob]")
+        logging.info("[Chaos]: [mob      ]")
         x, y = mob
         realX, realY = calculateMinimapRelative(x, y)
         sleepClickOrPress()
@@ -464,7 +540,7 @@ def randomMove():
         config["screenCenterY"] + config["clickableAreaY"],
     )
 
-    logging.info("[Chaos]: [random move]: x: {} y: {}".format(x, y))
+    logging.info("[Chaos]: [rand move]: x: {} y: {}".format(x, y))
     pydirectinput.click(x=x, y=y, button=config["move"])
     sleepClickOrPress()
     pydirectinput.click(x=x, y=y, button=config["move"])
@@ -481,15 +557,23 @@ def combatInFloor1():
         checkHealth()
         checkDeath()
 
-        if useAbilities(key_list_common, characters[characterIndex]["class"]):
-            if characters[characterIndex]["class"] != "bard":
-                if not checkMob():
-                    randomMove()
+        if characters[characterIndex]["class"] in classes_stance:
+            portal = checkPortal()
+            if portal != None:
+                x, y = portal
+                realX, realY = calculateMinimapRelative(x, y)
+                sleepClickOrPress()
+                pydirectinput.click(x=realX, y=realY, button="left")
+                sleepClickOrPressLong()
+                mouseMoveTo(x=config["screenCenterX"], y=config["screenCenterY"])
+
+        useAbilities(key_list_common, characters[characterIndex]["class"])
 
         if checkBlackScreen():
             return
 
         if checkTimeout() == "TIMEOUT":
+            sleepTransportLoading()
             return "TIMEOUT"
 
 
@@ -500,10 +584,17 @@ def combatInFloor2():
         checkHealth()
         checkDeath()
 
-        if useAbilities(key_list_common, characters[characterIndex]["class"]):
-            if characters[characterIndex]["class"] != "bard":
-                if not checkMob():
-                    randomMove()
+        if characters[characterIndex]["class"] in classes_stance:
+            portal = checkPortal()
+            if portal != None:
+                x, y = portal
+                realX, realY = calculateMinimapRelative(x, y)
+                sleepClickOrPress()
+                pydirectinput.click(x=realX, y=realY, button="left")
+                sleepClickOrPressLong()
+                mouseMoveTo(x=config["screenCenterX"], y=config["screenCenterY"])
+
+        useAbilities(key_list_common, characters[characterIndex]["class"])
 
         prepareUltCnt += 1
         if prepareUltCnt == 10:
@@ -516,24 +607,32 @@ def combatInFloor2():
     while (1):
         prepareUltCnt += 1
         checkHealth()
-        checkBoss()
+        checkBossToV()
 
-        if useAbilities(key_list_common, characters[characterIndex]["class"]):
-            if characters[characterIndex]["class"] != "bard":
-                if not checkMob():
-                    randomMove()
+        if characters[characterIndex]["class"] in classes_stance:
+            checkBoss()
+            if checkPortal() != None:
+                x, y = checkPortal()
+                realX, realY = calculateMinimapRelative(x, y)
+                sleepClickOrPress()
+                pydirectinput.click(x=realX, y=realY, button="left")
+                sleepClickOrPressLong()
+                mouseMoveTo(x=config["screenCenterX"], y=config["screenCenterY"])
+
+        useAbilities(key_list_common, characters[characterIndex]["class"])
 
         if checkBlackScreen():
             return
 
-        if checkTimeout() == "TIMEOUT" and prepareUltCnt > 30:
+        if prepareUltCnt >= 30 and checkTimeout() == "TIMEOUT":
+            sleepTransportLoading()
             return "TIMEOUT"
 
 
 def combatInFloor3():
     logging.info("---------------Floor3---------------")
     prepareUltCnt = 0
-    i = 0
+    moveCnt = 0
     while (1):
         prepareUltCnt += 1
         checkHealth()
@@ -546,16 +645,16 @@ def combatInFloor3():
             realX, realY = calculateMinimapRelative(x, y)
             sleepClickOrPress()
             pydirectinput.click(x=realX, y=realY, button="left")
-            sleepClickOrPressList()
+            sleepClickOrPressLong()
             mouseMoveTo(x=config["screenCenterX"], y=config["screenCenterY"])
         clickTower()
 
         if useAbilities(key_list_common_ult, characters[characterIndex]["class"]):
             checkMob()
-            i += 1
-            if i == 3:
+            moveCnt += 1
+            if moveCnt == 3:
                 randomMove()
-                i = 0
+                moveCnt = 0
 
         if checkChaosFinish():
             sleepTransportLoading()
@@ -584,11 +683,12 @@ def chaosCombat(index):
 def stub():
     mouseMoveTo(x=config["screenCenterX"], y=config["screenCenterY"])
     sleepClickOrPressLong()
-    pydirectinput.click(button="right")
     saveAbilitiesScreenshots(characters[characterIndex]["class"])
-    if layer == -1:
+    pydirectinput.click(button="right")
+    if layer != 2 and layer != 3:
         if combatInFloor1() == "TIMEOUT":
             return
+    if layer != 3:
         if combatInFloor2() == "TIMEOUT":
             return
     combatInFloor3()
