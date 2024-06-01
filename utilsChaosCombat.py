@@ -8,20 +8,13 @@ from originConfigAbilities import *
 import math
 
 
-key_list_common = ['q', 'r', 'w', 'e', 'a', 's', 'd', 'f', 'x']
-key_list_common_ult = ['q', 'r', 'w', 'e', 'a', 's', 'd', 'f', 'x', 'v']
-
-key_list_holyknight = ['q', 'r', 'w', 'e', 'a', 's', 'd', 'f']
+key_list_common = ['q', 'r', 'w', 'e', 'a', 's', 'd', 'f']
+key_list_common_ult = ['q', 'r', 'w', 'e', 'a', 's', 'd', 'f', 'v']
 
 key_list_demonic = ['q', 'r', 'w', 'e', 'a', 's', 'd', 'f']
 key_list_demonic_z = ['q', 'r', 'w', 'e', 'a', 's']
 key_list_demonic_z_reverse = ['s', 'a', 'e', 'w', 'r', 'q']
 
-key_list_slayer = ['q', 'r', 'w', 'e', 'a', 's', 'd', 'f']
-
-key_list_aeromancer = ['q', 'r', 'w', 'e', 'a', 's', 'd', 'f']
-
-key_list_blade = ['q', 'r', 'w', 'e', 'a', 's', 'd', 'f']
 
 classes_stance = ["bard", "sorceress"]
 
@@ -117,6 +110,10 @@ def usbAbilitiesCommon(key_list, characterClass):
 
 def useAbilities(key_list, characterClass):
     if characterClass == "bard":
+        pyautogui.keyDown("x")
+        sleepWink()
+        pyautogui.keyUp("x")
+        sleepClickOrPress()
         if usbAbilitiesCommon(key_list, characterClass):
             return True
     if characterClass == "holyknight":
@@ -125,7 +122,7 @@ def useAbilities(key_list, characterClass):
             pyautogui.keyDown("z")
             sleepClickOrPress()
             pyautogui.keyUp("z")
-        if usbAbilitiesCommon(key_list_holyknight, characterClass):
+        if usbAbilitiesCommon(key_list, characterClass):
             return True
     if characterClass == "demonic":
         z_full = pyautogui.locateCenterOnScreen(
@@ -145,9 +142,9 @@ def useAbilities(key_list, characterClass):
         )
         if z_full != None:
             pyautogui.keyDown("z")
-            sleepClickOrPress()
+            sleepWink()
             pyautogui.keyUp("z")
-            sleepClickOrPressList()
+            sleepClickOrPress()
             return True
         if z_active != None:
             for ability in key_list_demonic_z:
@@ -168,19 +165,19 @@ def useAbilities(key_list, characterClass):
         pyautogui.keyDown("z")
         sleepWink()
         pyautogui.keyUp("z")
-        sleepWink()
-        if usbAbilitiesCommon(key_list_slayer, characterClass):
+        sleepClickOrPress()
+        if usbAbilitiesCommon(key_list, characterClass):
             return True
     if characterClass == "sorceress":
         if usbAbilitiesCommon(key_list, characterClass):
             return True
     if characterClass == "aeromancer":
         # TODO: tuning
-        if usbAbilitiesCommon(key_list_aeromancer, characterClass):
+        if usbAbilitiesCommon(key_list, characterClass):
             return True
     if characterClass == "blade":
         # TODO: tuning
-        if usbAbilitiesCommon(key_list_blade, characterClass):
+        if usbAbilitiesCommon(key_list, characterClass):
             return True
     return False
 
@@ -218,7 +215,7 @@ def checkDeath():
     revive = pyautogui.locateCenterOnScreen(
         "./screenshots/chaos-revive.png",
         region=config["regions"]["whole-game"],
-        confidence=0.8
+        confidence=0.6
     )
     if revive != None:
         logging.info("[Chaos]: [death    ]")
@@ -231,7 +228,7 @@ def checkDeath():
 
 
 def checkPortal():
-    portal = []
+    portal = {}
 
     p_temp = pyautogui.locateCenterOnScreen(
         "./screenshots/chaos-portal.png",
@@ -239,7 +236,7 @@ def checkPortal():
         confidence=0.6
     )
     if p_temp != None:
-        portal.append(p_temp)
+        portal["0"] = p_temp
 
     p_temp = pyautogui.locateCenterOnScreen(
         "./screenshots/chaos-portal-top.png",
@@ -247,7 +244,7 @@ def checkPortal():
         confidence=0.6
     )
     if p_temp != None:
-        portal.append(p_temp)
+        portal["top"] = p_temp
 
     p_temp = pyautogui.locateCenterOnScreen(
         "./screenshots/chaos-portal-bottom.png",
@@ -255,7 +252,7 @@ def checkPortal():
         confidence=0.6
     )
     if p_temp != None:
-        portal.append(p_temp)
+        portal["bot"] = p_temp
 
     p_temp = pyautogui.locateCenterOnScreen(
         "./screenshots/chaos-portal-left.png",
@@ -263,7 +260,7 @@ def checkPortal():
         confidence=0.6
     )
     if p_temp != None:
-        portal.append(p_temp)
+        portal["left"] = p_temp
 
     p_temp = pyautogui.locateCenterOnScreen(
         "./screenshots/chaos-portal-right.png",
@@ -271,19 +268,30 @@ def checkPortal():
         confidence=0.6
     )
     if p_temp != None:
-        portal.append(p_temp)
+        portal["right"] = p_temp
 
-    for p in portal:
-        if p != None:
+    for key in portal:
+        if portal[key] != None:
             logging.info("[Chaos]: [portal   ]")
-            x_m, y_m = p
+            x_m, y_m = portal[key]
+            if key == "top":
+                y_m += 8
+            if key == "bot":
+                y_m -= 8
+            if key == "left":
+                x_m += 4
+            if key == "right":
+                x_m -= 4
             x, y = calculateMinimapRelative(x_m, y_m)
             sleepClickOrPress()
             mouseMoveTo(x=x, y=y)
             sleepClickOrPress()
             pydirectinput.click(x=x, y=y, button="left")
             sleepClickOrPressLong()
-            return
+            mouseMoveTo(x=config["screenCenterX"], y=config["screenCenterY"])
+            return True
+
+    return False
 
 
 def checkAsh():
@@ -419,11 +427,11 @@ def checkTower():
     if tower != None:
         x, y = tower
         logging.info("[Chaos]: [tower    ]: " + "image x: {} y: {}".format(x, y))
-        return x, y
+        return x, y+9
     elif towerTop != None:
         x, y = towerTop
         logging.info("[Chaos]: [tower    ]: " + "TOP image x: {} y: {}".format(x, y))
-        return x, y
+        return x, y+17
     elif towerBot != None:
         x, y = towerBot
         logging.info("[Chaos]: [tower    ]: " + "BOT image x: {} y: {}".format(x, y))
@@ -501,6 +509,7 @@ def clickTower():
         sleepClickOrPress()
         pydirectinput.press(config["meleeAttack"])
         mouseMoveTo(x=config["screenCenterX"], y=config["screenCenterY"])
+        return True
     elif riftCore2 != None:
         x, y = riftCore2
         if y > 650 or x < 400 or x > 1500:
@@ -519,6 +528,9 @@ def clickTower():
         sleepClickOrPress()
         pydirectinput.press(config["meleeAttack"])
         mouseMoveTo(x=config["screenCenterX"], y=config["screenCenterY"])
+        return True
+
+    return False
 
 
 def checkMob():
@@ -562,19 +574,14 @@ def randomMove():
 
 def combatInFloor1():
     logging.info("------------Chaos Floor1------------")
+
     while (1):
         checkHealth()
         checkDeath()
 
-        if characters[characterIndex]["class"] in classes_stance:
-            portal = checkPortal()
-            if portal != None:
-                x, y = portal
-                realX, realY = calculateMinimapRelative(x, y)
-                sleepClickOrPress()
-                pydirectinput.click(x=realX, y=realY, button="left")
-                sleepClickOrPressLong()
-                mouseMoveTo(x=config["screenCenterX"], y=config["screenCenterY"])
+        if not characters[characterIndex]["class"] in classes_stance:
+            if checkPortal():
+                continue
 
         useAbilities(key_list_common, characters[characterIndex]["class"])
 
@@ -589,25 +596,20 @@ def combatInFloor1():
 def combatInFloor2():
     logging.info("------------Chaos Floor2------------")
     prepareUltCnt = 0
+
     while (1):
-        checkHealth()
-        checkDeath()
-
-        if characters[characterIndex]["class"] in classes_stance:
-            portal = checkPortal()
-            if portal != None:
-                x, y = portal
-                realX, realY = calculateMinimapRelative(x, y)
-                sleepClickOrPress()
-                pydirectinput.click(x=realX, y=realY, button="left")
-                sleepClickOrPressLong()
-                mouseMoveTo(x=config["screenCenterX"], y=config["screenCenterY"])
-
-        useAbilities(key_list_common, characters[characterIndex]["class"])
-
         prepareUltCnt += 1
         if prepareUltCnt == 10:
             break
+
+        checkHealth()
+        checkDeath()
+
+        if not characters[characterIndex]["class"] in classes_stance:
+            if checkPortal():
+                continue
+
+        useAbilities(key_list_common, characters[characterIndex]["class"])
 
     pyautogui.keyDown("v")
     sleepClickOrPress()
@@ -615,18 +617,14 @@ def combatInFloor2():
 
     while (1):
         prepareUltCnt += 1
+
         checkHealth()
+        checkDeath()
         checkBossToV()
 
-        if characters[characterIndex]["class"] in classes_stance:
-            checkBoss()
-            if checkPortal() != None:
-                x, y = checkPortal()
-                realX, realY = calculateMinimapRelative(x, y)
-                sleepClickOrPress()
-                pydirectinput.click(x=realX, y=realY, button="left")
-                sleepClickOrPressLong()
-                mouseMoveTo(x=config["screenCenterX"], y=config["screenCenterY"])
+        if not characters[characterIndex]["class"] in classes_stance:
+            if checkPortal():
+                continue
 
         useAbilities(key_list_common, characters[characterIndex]["class"])
 
@@ -640,10 +638,13 @@ def combatInFloor2():
 
 def combatInFloor3():
     logging.info("------------Chaos Floor3------------")
+
     prepareUltCnt = 0
     moveCnt = 0
+
     while (1):
         prepareUltCnt += 1
+
         checkHealth()
         checkDeath()
         checkAsh()
@@ -656,6 +657,7 @@ def combatInFloor3():
             pydirectinput.click(x=realX, y=realY, button="left")
             sleepClickOrPressLong()
             mouseMoveTo(x=config["screenCenterX"], y=config["screenCenterY"])
+            continue
         clickTower()
 
         if useAbilities(key_list_common_ult, characters[characterIndex]["class"]):
@@ -678,7 +680,7 @@ def chaosCombat(index):
     characterIndex = index
     sleepClickOrPress()
     mouseMoveTo(x=config["screenCenterX"], y=config["screenCenterY"])
-    sleepClickOrPress()
+    sleepClickOrPressLong()
     saveAbilitiesScreenshots(characters[characterIndex]["class"])
     pydirectinput.click(button="right")
     if combatInFloor1() == "TIMEOUT":
