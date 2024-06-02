@@ -6,22 +6,6 @@ from utils import *
 
 def chaosEnter(currentCharacter):
     sleepCommonProcess()
-    logging.info("[Charac]: <" + str(currentCharacter) + ">: " + "[Chaos]: {Choose}")
-    pydirectinput.keyDown("alt")
-    sleepClickOrPress()
-    pydirectinput.press("q")
-    sleepClickOrPress()
-    pydirectinput.keyUp("alt")
-    sleepClickOrPressLong()
-
-    mouseMoveTo(x=886, y=316)
-    sleepClickOrPress()
-    pydirectinput.click(x=886, y=316, button="left")
-    sleepClickOrPress()
-    mouseMoveTo(x=886, y=316)
-    sleepClickOrPress()
-    pydirectinput.click(x=886, y=316, button="left")
-    sleepClickOrPressLong()
 
     # select chaos dungeon level based on current Character
     _curr = config["characters"][currentCharacter]
@@ -44,6 +28,26 @@ def chaosEnter(currentCharacter):
         1540: [[1560, 265], [410, 731+20]],
         1560: [[1560, 265], [410, 796+20]],
     }
+    if _curr["ilvl-aor"] not in chaosTabPosition:
+        logging.info("[Charac]: <" + str(currentCharacter) + ">: " + "[Chaos]: {LV too low, cannot enter}")
+        return False
+
+    logging.info("[Charac]: <" + str(currentCharacter) + ">: " + "[Chaos]: {Choose}")
+    pydirectinput.keyDown("alt")
+    sleepClickOrPress()
+    pydirectinput.press("q")
+    sleepClickOrPress()
+    pydirectinput.keyUp("alt")
+    sleepClickOrPressLong()
+
+    mouseMoveTo(x=886, y=316)
+    sleepClickOrPress()
+    pydirectinput.click(x=886, y=316, button="left")
+    sleepClickOrPress()
+    mouseMoveTo(x=886, y=316)
+    sleepClickOrPress()
+    pydirectinput.click(x=886, y=316, button="left")
+    sleepClickOrPressLong()
 
     mouseMoveTo(
         x=chaosTabPosition[_curr["ilvl-aor"]][0][0],

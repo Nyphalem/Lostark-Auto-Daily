@@ -18,16 +18,17 @@ def main():
     logging.info("------------------------------------")
 
     # Instantiate the parser
-    parser = argparse.ArgumentParser(description="Optional app description")
+    parser = argparse.ArgumentParser(description="脚本可选开关")
     parser.add_argument("--all", action="store_true", help="所有号都运行")
     parser.add_argument("--start", type=int, help="从哪个号开始运行")
-    parser.add_argument("--skip", action="store_true", help="跳过渴望岛")
-    parser.add_argument("--nochaos", action="store_true", help="不打混沌地牢")
-    parser.add_argument("--repair", action="store_true", help="只修理")
-    parser.add_argument("--buypotion", action="store_true", help="只买药")
+    parser.add_argument("--desire", action="store_true", help="日常做完刷渴望岛")
+    parser.add_argument("--chaos", action="store_true", help="打混沌地牢")
+    parser.add_argument("--repair", action="store_true", help="修理")
+    parser.add_argument("--disenchant", action="store_true", help="分解")
+    parser.add_argument("--buypotion", action="store_true", help="买药")
     args = parser.parse_args()
 
-    skip_desire = False
+    need_desire = False
 
     # cold init
     sleepCommonProcess()
@@ -40,11 +41,17 @@ def main():
     if args.all:
         states["multiCharacterMode"] = True
         for i in range(len(config["characters"])):
-            states["multiCharacterModeState"].append(2)
-    if args.skip:
-        skip_desire = True
+            if args.start and i < args.start:
+                states["multiCharacterModeState"].append(0)
+            else:
+                states["multiCharacterModeState"].append(2)
+    if args.desire:
+        need_desire = True
     if args.start:
         states["currentCharacter"] = args.start
+
+    logging.info(states["multiCharacterModeState"])
+    logging.info("------------------------------------")
 
     # Farm in Masyaf
     if needDoFarmingInMasyaf():
@@ -90,18 +97,36 @@ def main():
                     states["multiCharacterMode"] = False
                     states["multiCharacterModeState"] = []
                     sleepCommonProcess()
-                    if skip_desire:
-                        switchToCharacter(0)
-                    else:
+                    if need_desire:
+                        logging.info(
+                            "[Charac]: <{}>: [Switch]: <{}>".format(
+                                states["currentCharacter"], 1
+                            )
+                        )
                         switchToCharacter(1)
+                    else:
+                        logging.info(
+                            "[Charac]: <{}>: [Switch]: <{}>".format(
+                                states["currentCharacter"], 0
+                            )
+                        )
+                        switchToCharacter(0)
                     sleepCommonProcess()
 
+                    # caculate process time
+                    endTime = int(time.time_ns() / 1000000)
+                    processTime = endTime - startTime
+                    processMsc = processTime % 1000
+                    processTime = int(processTime / 1000)
+                    processSec = processTime % 60
+                    processTime = int(processTime / 60)
+                    processMin = processTime
                     logging.info("执行时间: " + str(processMin) + "m " + str(processSec) + "s " + str(processMsc) + "ms")
                     logging.info("------------------------------------")
-                    logging.info("所有角色打卡完毕")
+                    logging.info("又是成功偷懒的快乐一天！！！")
                     if sum(states["chaosTimeoutCnt"]):
                         logging.info("Chaos Timeout Cnt: {}".format(states["chaosTimeoutCnt"]))
-                        logging.info("Chaos Timeout Cnt Total: " + str(sum(states["chaosTimeoutCnt"])))
+                        logging.info("Chaos Timeout Cnt Total: " + str(sum(states["chaosTimeoutCnt"].values())))
                     logging.info("------------------------------------")
 
                 elif states["multiCharacterModeState"][states["currentCharacter"]] <= 0:
@@ -152,7 +177,7 @@ def main():
 
             # 生命周期最后：刷渴望岛
             if not states["multiCharacterMode"]:
-                if not skip_desire:
+                if need_desire:
                     desire_island_key_list = [[1698,347],[1475,576],[920,675]]
                     for key in desire_island_key_list:
                         x = key[0]
@@ -165,7 +190,7 @@ def main():
                     sleepCommonProcess()
                 return
 
-        if not args.nochaos and not args.repair and not args.buypotion:
+        if args.chaos:
             if chaosEnter(states["currentCharacter"]):
                 if not chaosCombat(states["currentCharacter"]):
                     if states["currentCharacter"] not in states["chaosTimeoutCnt"]:
@@ -175,8 +200,9 @@ def main():
         states["multiCharacterModeState"][states["currentCharacter"]] -= 1
 
         if states["multiCharacterModeState"][states["currentCharacter"]] <= 0:
-            if not args.nochaos and not args.buypotion:
+            if args.repair:
                 doRepairMasyaf()
+            if args.disenchant:
                 doDisenchant()
             if args.buypotion:
                 doBuypotion()
@@ -206,7 +232,9 @@ def doFarmingInMasyaf():
     qutst_key_list = [[143,300],[216,382],[988,256],[966,912],
                         [678,390],[1845,420],[969,762],
                         [678,390],[1593,685],[1779,920],[941,677],
+                        [685,463],[1845,420],[969,762],
                         [685,463],[1593,685],[1779,920],[941,677],
+                        [599,534],[1845,420],[969,762],
                         [599,534],[1593,685],[1779,920],[941,677]]
     for key in qutst_key_list:
         x = key[0]
@@ -828,25 +856,80 @@ def doDisenchant():
         sleepClickOrPress()
         pydirectinput.click(x=x, y=y, button="left")
         sleepClickOrPressLong()
-    pydirectinput.click(x=1100, y=780, button="left")
-    sleepClickOrPressLong()
-    pydirectinput.click(x=1180, y=780, button="left")
-    sleepClickOrPressLong()
-    pydirectinput.click(x=1237, y=839, button="left")
-    sleepClickOrPressLong()
-    confirm = pyautogui.locateCenterOnScreen(
-        "./screenshots/bag-disenchant-confirm.png",
-        confidence=0.7,
-        grayscale=True
-    )
-    if confirm != None:
-        x, y = confirm
-        mouseMoveTo(x=x, y=y)
-        sleepClickOrPress()
-        pydirectinput.click(x=x, y=y, button="left")
-        sleepClickOrPressLong()
-    pydirectinput.press("esc")
-    sleepClickOrPressLong()
+
+        disenchant_lv1 = pyautogui.locateCenterOnScreen(
+            "./screenshots/bag-disenchant-lv1.png",
+            confidence=0.7,
+            grayscale=True
+        )
+        if disenchant_lv1 != None:
+            x, y = disenchant_lv1
+            mouseMoveTo(x=x, y=y)
+            sleepClickOrPress()
+            pydirectinput.click(x=x, y=y, button="left")
+            sleepClickOrPressLong()
+
+        disenchant_lv2 = pyautogui.locateCenterOnScreen(
+            "./screenshots/bag-disenchant-lv2.png",
+            confidence=0.7,
+            grayscale=True
+        )
+        if disenchant_lv2 != None:
+            x, y = disenchant_lv2
+            mouseMoveTo(x=x, y=y)
+            sleepClickOrPress()
+            pydirectinput.click(x=x, y=y, button="left")
+            sleepClickOrPressLong()
+
+        disenchant_lv3 = pyautogui.locateCenterOnScreen(
+            "./screenshots/bag-disenchant-lv3.png",
+            confidence=0.7,
+            grayscale=True
+        )
+        if disenchant_lv3 != None:
+            x, y = disenchant_lv3
+            mouseMoveTo(x=x, y=y)
+            sleepClickOrPress()
+            pydirectinput.click(x=x, y=y, button="left")
+            sleepClickOrPressLong()
+
+        disenchant_lv4 = pyautogui.locateCenterOnScreen(
+            "./screenshots/bag-disenchant-lv4.png",
+            confidence=0.7,
+            grayscale=True
+        )
+        if disenchant_lv4 != None:
+            x, y = disenchant_lv4
+            mouseMoveTo(x=x, y=y)
+            sleepClickOrPress()
+            pydirectinput.click(x=x, y=y, button="left")
+            sleepClickOrPressLong()
+
+        disenchant_pro = pyautogui.locateCenterOnScreen(
+            "./screenshots/bag-disenchant-process.png",
+            confidence=0.7,
+            grayscale=True
+        )
+        if disenchant_pro != None:
+            x, y = disenchant_pro
+            mouseMoveTo(x=x, y=y)
+            sleepClickOrPress()
+            pydirectinput.click(x=x, y=y, button="left")
+            sleepClickOrPressLong()
+
+            confirm = pyautogui.locateCenterOnScreen(
+                "./screenshots/bag-disenchant-confirm.png",
+                confidence=0.7,
+                grayscale=True
+            )
+            if confirm != None:
+                x, y = confirm
+                mouseMoveTo(x=x, y=y)
+                sleepClickOrPress()
+                pydirectinput.click(x=x, y=y, button="left")
+                sleepClickOrPressLong()
+            pydirectinput.press("esc")
+            sleepClickOrPressLong()
 
     # sort bag
     bag_sort = pyautogui.locateCenterOnScreen(

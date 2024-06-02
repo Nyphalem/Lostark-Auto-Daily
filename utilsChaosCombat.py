@@ -22,6 +22,7 @@ classes_stance = ["bard", "sorceress"]
 # global constant
 abilityScreenshots = []
 characterIndex = 0
+autoAttackPressed = False
 
 
 # script constant
@@ -53,16 +54,13 @@ def saveAbilitiesScreenshots(characterClass):
 
 
 def usbAbilitiesCommon(key_list, characterClass):
-    logging.info("[Chaos]: [Ab Common]: in")
+    sleepWink()
     pyautogui.keyDown(config["interact"])
     sleepClickOrPress()
     pyautogui.keyUp(config["interact"])
 
-    logging.info("[Chaos]: [Ab Common]: interact done")
+    pydirectinput.mouseDown(button="right")
 
-    logging.info("[Chaos]: [Ab Common]: get button")
-    if not characterClass in classes_stance:
-        pydirectinput.mouseDown(x=config["screenCenterX"], y=config["screenCenterY"], button="right")
     size = len(key_list)
     click_random = random.randint(0, size-1)
     for ability in abilityScreenshots:
@@ -76,14 +74,11 @@ def usbAbilitiesCommon(key_list, characterClass):
                 confidence=0.9,
                 region=(left, top, width, height),
             )
-            logging.info("[Chaos]: [Ab Common]: ab not ready")
             if ability_ready == None:
+                pydirectinput.mouseUp(button="right")
                 return False
 
-    if not characterClass in classes_stance:
-        pydirectinput.mouseUp(x=config["screenCenterX"], y=config["screenCenterY"], button="right")
-
-    logging.info("[Chaos]: [Ab Common]: ad ready")
+    pydirectinput.mouseUp(button="right")
 
     pyautogui.keyDown(key_list[click_random])
 
@@ -103,7 +98,6 @@ def usbAbilitiesCommon(key_list, characterClass):
                 sleepClickOrPress()
 
     pyautogui.keyUp(key_list[click_random])
-    logging.info("[Chaos]: [Ab Common]: out")
 
     return True
 
@@ -379,13 +373,13 @@ def checkTimeout():
     timeout = pyautogui.locateCenterOnScreen(
         "./screenshots/chaos-timeout.png",
         region=config["regions"]["chaos-remain-time"],
-        confidence=0.9
+        confidence=0.6
     )
     if timeout != None:
         chaosExit1 = pyautogui.locateCenterOnScreen(
             "./screenshots/chaos-exit1.png",
             region=config["regions"]["whole-game"],
-            confidence=0.7
+            confidence=0.6
         )
         if chaosExit1 != None:
             x, y = chaosExit1
@@ -396,7 +390,7 @@ def checkTimeout():
             chaosExit2 = pyautogui.locateCenterOnScreen(
                 "./screenshots/chaos-exit2.png",
                 region=config["regions"]["whole-game"],
-                confidence=0.7
+                confidence=0.6
             )
             if chaosExit2 != None:
                 x, y = chaosExit2
@@ -684,15 +678,15 @@ def chaosCombat(index):
     saveAbilitiesScreenshots(characters[characterIndex]["class"])
     pydirectinput.click(button="right")
     if combatInFloor1() == "TIMEOUT":
-        logging.info("------------Chaos Finish------------")
+        logging.info("-------------Chaos Exit-------------")
         return False
     if combatInFloor2() == "TIMEOUT":
-        logging.info("------------Chaos Finish------------")
+        logging.info("-------------Chaos Exit-------------")
         return False
     if combatInFloor3() == "TIMEOUT":
-        logging.info("------------Chaos Finish------------")
+        logging.info("-------------Chaos Exit-------------")
         return False
-    logging.info("------------Chaos Finish------------")
+    logging.info("-------------Chaos Exit-------------")
     return True
 
 
