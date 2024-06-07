@@ -191,12 +191,13 @@ def main():
                 return
 
         if args.chaos:
-            if chaosEnter(states["currentCharacter"]):
-                if not chaosCombat(states["currentCharacter"]):
-                    if states["currentCharacter"] not in states["chaosTimeoutCnt"]:
-                        states["chaosTimeoutCnt"][states["currentCharacter"]] = 1
-                    else:
-                        states["chaosTimeoutCnt"][states["currentCharacter"]] += 1
+            if config["characters"][states["currentCharacter"]]["class"] in classes_stance:
+                if chaosEnter(states["currentCharacter"]):
+                    if not chaosCombat(states["currentCharacter"]):
+                        if states["currentCharacter"] not in states["chaosTimeoutCnt"]:
+                            states["chaosTimeoutCnt"][states["currentCharacter"]] = 1
+                        else:
+                            states["chaosTimeoutCnt"][states["currentCharacter"]] += 1
         states["multiCharacterModeState"][states["currentCharacter"]] -= 1
 
         if states["multiCharacterModeState"][states["currentCharacter"]] <= 0:
@@ -821,7 +822,7 @@ def doRepairMasyaf():
     mouseMoveTo(x=822, y=845)
     sleepClickOrPress()
     pydirectinput.click(x=822, y=845, button="left")
-    sleepClickOrPressLong()
+    sleepCommonProcess()
 
     return
 
@@ -946,7 +947,7 @@ def doDisenchant():
 
     # close bag
     pydirectinput.press("i")
-    sleepClickOrPressLong()
+    sleepCommonProcess()
 
     # confirm bag closed
     bag_sort = pyautogui.locateCenterOnScreen(
@@ -956,6 +957,7 @@ def doDisenchant():
     )
     if bag_sort != None:
         pydirectinput.press("i")
+        sleepCommonProcess()
 
 
 def doBuypotion():

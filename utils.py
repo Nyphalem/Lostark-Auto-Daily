@@ -25,6 +25,8 @@ newStates = {
     "chaosTimeoutCnt": {},
 }
 
+classes_stance = ["bard", "sorceress"]
+
 def sleep(min, max):
     sleepTime = random.randint(min, max) / 1000.0
     if sleepTime < 0:
