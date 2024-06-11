@@ -1,3 +1,2 @@
-- 能力技侧键 、 X
-- portal坐标误差
-- 修改timeout，不识图，算时间
+- holyknight
+- aeromancer

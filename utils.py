@@ -5,11 +5,9 @@ import logging
 import random
 import json
 
-logging.basicConfig(level=logging.INFO,
-                    format='%(asctime)s.%(msecs)03d %(levelname)s: %(message)s',
-                    datefmt='%Y-%m-%d %H:%M:%S')
 
 config_file_path = 'personalConfig.json'
+param_file_path = 'personalParam.json'
 
 pydirectinput.PAUSE = 0.05
 newStates = {
@@ -26,6 +24,7 @@ newStates = {
 }
 
 classes_stance = ["bard", "sorceress"]
+
 
 def sleep(min, max):
     sleepTime = random.randint(min, max) / 1000.0
@@ -93,4 +92,3 @@ def update_status_value(file_path, key, value):
         logging.info("[Error]: Config file not found.")
     except json.JSONDecodeError:
         logging.info("[Error]: decoding JSON.")
-

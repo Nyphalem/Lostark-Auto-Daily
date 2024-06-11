@@ -6,10 +6,6 @@ import win32gui
 import logging
 from utils import *
 
-logging.basicConfig(level=logging.INFO,
-                    format='%(asctime)s %(levelname)s: %(message)s',
-                    datefmt='%Y-%m-%d %H:%M:%S')
-
 
 key_list = ['q', 'r', 'w', 'e', 'a', 's', 'd', 'f', 'v', 'x']
 key_list_demon = ['w', 'e', 'a', 's', 'd', 'f', 'v']
@@ -32,6 +28,7 @@ def click_all():
     # automatically open inventory
     bagExist = pyautogui.locateCenterOnScreen(
         "./screenshots/bag.png",
+        region=config["regions"]["whole-game"],
         confidence=0.8,
         grayscale=True
     )
@@ -46,6 +43,7 @@ def click_all():
     while (1):
         bagExist = pyautogui.locateCenterOnScreen(
             "./screenshots/bag.png",
+            region=config["regions"]["whole-game"],
             confidence=0.8,
             grayscale=True
         )
@@ -77,6 +75,7 @@ def click_all():
 
             bagExist = pyautogui.locateCenterOnScreen(
                 "./screenshots/bag.png",
+                region=config["regions"]["whole-game"],
                 confidence=0.7,
                 grayscale=True
             )
@@ -96,6 +95,7 @@ def click_all():
 
             bagExist = pyautogui.locateCenterOnScreen(
                 "./screenshots/bag.png",
+                region=config["regions"]["whole-game"],
                 confidence=0.8,
                 grayscale=True
             )
@@ -108,6 +108,7 @@ def click_all():
 
             bagExist = pyautogui.locateCenterOnScreen(
                 "./screenshots/bag.png",
+                region=config["regions"]["whole-game"],
                 confidence=0.8,
                 grayscale=True
             )

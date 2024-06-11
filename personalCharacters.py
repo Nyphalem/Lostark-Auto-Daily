@@ -26,8 +26,8 @@ characters = [
     },
     {
         "index": 5,
-        "class": "holyknight",
-        "ilvl-aor": 1415,
+        "class": "sorceress",
+        "ilvl-aor": 805,
     },
     {
         "index": 6,
@@ -41,7 +41,7 @@ characters = [
     },
     {
         "index": 8,
-        "class": "sorceress",
-        "ilvl-aor": 500,
+        "class": "holyknight",
+        "ilvl-aor": 1415,
     },
 ]
