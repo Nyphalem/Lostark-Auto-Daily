@@ -19,7 +19,7 @@ config = {
     },
     "clickableAreaX": 160,
     "clickableAreaY": 90,
-    "clickableArea": 400,
+    "clickableArea": 300,
     "screenCenterX": 960,
     "screenCenterY": 540,
     "minimapCenterX": 1745,

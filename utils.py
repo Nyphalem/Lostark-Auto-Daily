@@ -23,6 +23,8 @@ newStates = {
     "chaosTimeoutCnt": {},
 }
 
+states = newStates.copy()
+
 classes_stance = ["bard", "sorceress"]
 
 
@@ -34,7 +36,7 @@ def sleep(min, max):
 
 
 def sleepWink():
-    sleep(0, 200)
+    sleep(0, 100)
 
 
 def sleepClickOrPress():

@@ -7,32 +7,32 @@ characters = [
     {
         "index": 1,
         "class": "bard",
-        "ilvl-aor": 1445,
+        "ilvl-aor": 1460,
     },
     {
         "index": 2,
         "class": "bard",
-        "ilvl-aor": 1445,
+        "ilvl-aor": 1460,
     },
     {
         "index": 3,
         "class": "bard",
-        "ilvl-aor": 1415,
+        "ilvl-aor": 1460,
     },
     {
         "index": 4,
         "class": "bard",
-        "ilvl-aor": 1415,
+        "ilvl-aor": 1460,
     },
     {
         "index": 5,
-        "class": "sorceress",
-        "ilvl-aor": 805,
+        "class": "holyknight",
+        "ilvl-aor": 1460,
     },
     {
         "index": 6,
         "class": "demonic",
-        "ilvl-aor": 1415,
+        "ilvl-aor": 1430,
     },
     {
         "index": 7,
@@ -41,7 +41,7 @@ characters = [
     },
     {
         "index": 8,
-        "class": "holyknight",
-        "ilvl-aor": 1415,
+        "class": "sorceress",
+        "ilvl-aor": 1322,
     },
 ]

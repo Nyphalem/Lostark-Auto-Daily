@@ -7,7 +7,7 @@ import time
 import win32gui
 import logging
 
-import autoDaily
+import main
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
@@ -43,19 +43,19 @@ class TestMain(unittest.TestCase):
     python -m unittest tests.test_main_function.TestMain.test_main_disenchant
     '''
     def test_main_disenchant(self):
-        autoDaily.doDisenchant()
+        main.doDisenchant()
 
     '''
     python -m unittest tests.test_main_function.TestMain.test_main_repair
     '''
     def test_main_repair(self):
-        autoDaily.doRepairMasyaf()
+        main.doRepairMasyaf()
 
     '''
     python -m unittest tests.test_main_function.TestMain.test_main_buypotion
     '''
     def test_main_buypotion(self):
-        autoDaily.doBuypotion()
+        main.doBuypotion()
 
 
 def waitForSwitchToLostArk():
