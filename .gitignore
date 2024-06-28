@@ -1,0 +1,8 @@
+personalCharacters.py
+personalConfig.json
+personalParam.json
+__pycache__/
+build/
+dist/
+main.spec
+main.exe

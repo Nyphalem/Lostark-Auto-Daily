@@ -1,7 +1,7 @@
 {
-    "day_of_week_farmingInMasyaf": 4,
-    "day_of_week_dailyQuest": 4,
+    "day_of_week_farmingInMasyaf": 3,
+    "day_of_week_dailyQuest": 3,
     "need_do_farmingInMasyaf": false,
     "need_do_dailyQuest": false,
-    "need_do_weeklyQuest": true
+    "need_do_weeklyQuest": false
 }

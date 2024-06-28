@@ -42,6 +42,6 @@ characters = [
     {
         "index": 8,
         "class": "sorceress",
-        "ilvl-aor": 1322,
+        "ilvl-aor": 1325,
     },
 ]

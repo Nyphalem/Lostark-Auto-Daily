@@ -14,7 +14,6 @@ import sys
 
 
 def main():
-    startTime = 0
     # 配置logging模块
     logging.basicConfig(
         stream=sys.stdout,
@@ -86,155 +85,208 @@ def main():
     else:
         logging.info("跳过领地日常")
 
-    # save bot start time
-    states["botStartTime"] = int(time.time_ns() / 1000000)
+    # auto daily process
+    if needDoDailyQuest() or needDoWeeklyQuest():
+        startTime = 0
 
-    # main process
-    logging.info("-----------------C%d-----------------" \
-                % (states["currentCharacter"]+1))
-    while True:
-        if states["status"] == "inCity":
+        logging.info("------------------------------------")
+        logging.info("日常任务开始")
+
+        while True:
+            logging.info("-----------------C%d-----------------" \
+                        % (states["currentCharacter"]+1))
             mouseMoveTo(x=config["screenCenterX"], y=config["screenCenterY"])
             sleepClickOrPress()
-            # switch character
-            if states["multiCharacterMode"]:
-                if sum(states["multiCharacterModeState"]) == 0:
-                    # daily quest
-                    if needDoDailyQuest():
-                        doGuildDonation()
-                        doIvnaDaily()
-                        update_status_value(config_file_path, 'need_do_dailyQuest', False)
 
-                    # weekly quest
-                    if needDoWeeklyQuest():
-                        acceptIvnaWeekly()
-                        acceptGuildQuest()
-                        doGuildVoyage()
-                        update_status_value(config_file_path, 'need_do_weeklyQuest', False)
+            # back to Masyaf
+            pydirectinput.press("f2")
+            sleepTransportLoading()
 
-                    # back to Masyaf
-                    pydirectinput.press("f2")
-                    sleepTransportLoading()
+            # daily quest
+            if needDoDailyQuest():
+                doGuildDonation()
+                doIvnaDaily()
 
-                    # finish all characters' daily and：
-                    # 1.switch to character #1 to desire island
-                    # 2.switch to character #0 to terminate
-                    states["multiCharacterMode"] = False
-                    states["multiCharacterModeState"] = []
-                    if need_desire:
-                        logging.info(
-                            "[角色]: <{}>: [切换]: <{}>".format(
-                                states["currentCharacter"]+1, 2
+            # weekly quest
+            if needDoWeeklyQuest():
+                acceptIvnaWeekly()
+                acceptGuildQuest()
+                doGuildVoyage()
+
+            # back to Masyaf
+            pydirectinput.press("f2")
+            sleepTransportLoading()
+
+
+            # switch to the next character
+            nextIndex = states["currentCharacter"] + 1
+            if nextIndex == len(states["multiCharacterModeState"]):
+                nextIndex = 0
+            logging.info(
+                "[角色]: <{}>: [切换]: <{}>".format(
+                    states["currentCharacter"]+1, nextIndex+1
+                )
+            )
+            switchToCharacter(nextIndex)
+            if nextIndex == 0:
+                break
+
+        update_status_value(config_file_path, 'need_do_dailyQuest', False)
+        update_status_value(config_file_path, 'need_do_weeklyQuest', False)
+        logging.info("------------------------------------")
+        logging.info("日常任务结束")
+
+
+    # auto chaos process
+    if need_chaos:
+        startTime = 0
+
+        logging.info("------------------------------------")
+        logging.info("混沌地牢开始")
+        logging.info("-----------------C%d-----------------" \
+                    % (states["currentCharacter"]+1))
+        while True:
+            if states["status"] == "inCity":
+                mouseMoveTo(x=config["screenCenterX"], y=config["screenCenterY"])
+                sleepClickOrPress()
+                # switch character
+                if states["multiCharacterMode"]:
+                    if sum(states["multiCharacterModeState"]) == 0:
+                        # finish all characters' chaos and：
+                        # 1.switch to character #1 to desire island
+                        # 2.switch to character #0 to terminate
+                        states["multiCharacterMode"] = False
+                        states["multiCharacterModeState"] = []
+                        if need_desire:
+                            logging.info(
+                                "[角色]: <{}>: [切换]: <{}>".format(
+                                    states["currentCharacter"]+1, 2
+                                )
                             )
-                        )
-                        switchToCharacter(1)
-                    else:
-                        logging.info(
-                            "[角色]: <{}>: [切换]: <{}>".format(
-                                states["currentCharacter"]+1, 1
-                            )
-                        )
-                        switchToCharacter(0)
-
-                    # caculate process time
-                    endTime = int(time.time_ns() / 1000000)
-                    processTime = endTime - startTime
-                    processMsc = processTime % 1000
-                    processTime = int(processTime / 1000)
-                    processSec = processTime % 60
-                    processTime = int(processTime / 60)
-                    processMin = processTime
-                    logging.info("执行时间: " + str(processMin) + "m " + str(processSec) + "s " + str(processMsc) + "ms")
-                    logging.info("------------------------------------")
-                    logging.info("又是成功偷懒的快乐一天！！！")
-                    if sum(states["chaosTimeoutCnt"]):
-                        logging.info("混沌地牢超时计数: {}".format(states["chaosTimeoutCnt"]))
-                        logging.info("混沌地牢超时总数: " + str(sum(states["chaosTimeoutCnt"].values())))
-                    logging.info("------------------------------------")
-
-                elif states["multiCharacterModeState"][states["currentCharacter"]] <= 0:
-                    # daily quest
-                    if needDoDailyQuest():
-                        doGuildDonation()
-                        doIvnaDaily()
-
-                    # weekly quest
-                    if needDoWeeklyQuest():
-                        acceptIvnaWeekly()
-                        acceptGuildQuest()
-                        doGuildVoyage()
-
-                    # back to Masyaf
-                    pydirectinput.press("f2")
-                    sleepTransportLoading()
-
-                    # switch to the next character
-                    nextIndex = (states["currentCharacter"] + 1) % len(
-                        states["multiCharacterModeState"]
-                    )
-                    logging.info(
-                        "[角色]: <{}>: [切换]: <{}>".format(
-                            states["currentCharacter"]+1, nextIndex+1
-                        )
-                    )
-                    switchToCharacter(nextIndex)
-
-                    # caculate process time
-                    endTime = int(time.time_ns() / 1000000)
-                    processTime = endTime - startTime
-                    processMsc = processTime % 1000
-                    processTime = int(processTime / 1000)
-                    processSec = processTime % 60
-                    processTime = int(processTime / 60)
-                    processMin = processTime
-                    logging.info("执行时间: " + str(processMin) + "m " + str(processSec) + "s " + str(processMsc) + "ms")
-                    logging.info("-----------------C%d-----------------" % (nextIndex+1))
-                    continue
-                else:
-                    sleepClickOrPress()
-                    if states["multiCharacterModeState"][states["currentCharacter"]] == 2:
-                        startTime = int(time.time_ns() / 1000000)
-                        doRepairMasyaf()
-                        logging.info("[角色]: <" + str(states["currentCharacter"]+1) + ">: " + "[混沌地牢]: {开始}")
-
-            # 生命周期最后：刷渴望岛
-            if not states["multiCharacterMode"]:
-                if need_desire:
-                    desire_island_key_list = [[1698,347],[1475,576],[920,675]]
-                    for key in desire_island_key_list:
-                        x = key[0]
-                        y = key[1]
-                        mouseMoveTo(x=x, y=y)
-                        sleepClickOrPressLong()
-                        pydirectinput.click(x=x, y=y, button="left")
-                        sleepClickOrPressLong()
-                    utilsDesire.desire()
-                    sleepCommonProcess()
-                return
-
-        if need_chaos:
-            if need_chaos_all_class or config["characters"][states["currentCharacter"]]["class"] in classes_stance:
-                if chaosEnter(states["currentCharacter"]):
-                    if not chaosCombat(states["currentCharacter"]):
-                        if states["currentCharacter"] not in states["chaosTimeoutCnt"]:
-                            states["chaosTimeoutCnt"][states["currentCharacter"]] = 1
+                            switchToCharacter(1)
                         else:
-                            states["chaosTimeoutCnt"][states["currentCharacter"]] += 1
-        states["multiCharacterModeState"][states["currentCharacter"]] -= 1
+                            logging.info(
+                                "[角色]: <{}>: [切换]: <{}>".format(
+                                    states["currentCharacter"]+1, 1
+                                )
+                            )
+                            switchToCharacter(0)
 
-        sleepCommonProcess()
+                        # caculate process time
+                        endTime = int(time.time_ns() / 1000000)
+                        processTime = endTime - startTime
+                        processMsc = processTime % 1000
+                        processTime = int(processTime / 1000)
+                        processSec = processTime % 60
+                        processTime = int(processTime / 60)
+                        processMin = processTime
+                        logging.info("执行时间: " + str(processMin) + "m " + str(processSec) + "s " + str(processMsc) + "ms")
+                        logging.info("------------------------------------")
+                        logging.info("混沌地牢结束")
+                        if sum(states["chaosTimeoutCnt"]):
+                            logging.info("混沌地牢超时计数: {}".format(states["chaosTimeoutCnt"]))
+                            logging.info("混沌地牢超时总数: " + str(sum(states["chaosTimeoutCnt"].values())))
+                        logging.info("------------------------------------")
 
-        if states["multiCharacterModeState"][states["currentCharacter"]] <= 0:
-            if need_repair:
-                doRepairMasyaf()
-            if need_disenchant:
-                doDisenchant()
-            if need_sort_bag:
-                doSortBag()
-            if need_buy_potion:
-                doBuypotion()
-            logging.info("[角色]: <" + str(states["currentCharacter"]+1) + ">: " + "[混沌地牢]: {结束}")
+                    elif states["multiCharacterModeState"][states["currentCharacter"]] <= 0:
+                        # switch to the next character
+                        nextIndex = (states["currentCharacter"] + 1) % len(
+                            states["multiCharacterModeState"]
+                        )
+                        logging.info(
+                            "[角色]: <{}>: [切换]: <{}>".format(
+                                states["currentCharacter"]+1, nextIndex+1
+                            )
+                        )
+                        switchToCharacter(nextIndex)
 
+                        # caculate process time
+                        endTime = int(time.time_ns() / 1000000)
+                        processTime = endTime - startTime
+                        processMsc = processTime % 1000
+                        processTime = int(processTime / 1000)
+                        processSec = processTime % 60
+                        processTime = int(processTime / 60)
+                        processMin = processTime
+                        logging.info("执行时间: " + str(processMin) + "m " + str(processSec) + "s " + str(processMsc) + "ms")
+                        logging.info("-----------------C%d-----------------" % (nextIndex+1))
+                        continue
+                    else:
+                        sleepClickOrPress()
+                        if states["multiCharacterModeState"][states["currentCharacter"]] == 2:
+                            startTime = int(time.time_ns() / 1000000)
+                            doRepairMasyaf()
+                            logging.info("[角色]: <" + str(states["currentCharacter"]+1) + ">: " + "[混沌地牢]: {开始}")
+
+                # 生命周期最后：刷渴望岛
+                if not states["multiCharacterMode"]:
+                    if need_desire:
+                        desire_island_key_list = [[1698,347],[1475,576],[920,675]]
+                        for key in desire_island_key_list:
+                            x = key[0]
+                            y = key[1]
+                            mouseMoveTo(x=x, y=y)
+                            sleepClickOrPressLong()
+                            pydirectinput.click(x=x, y=y, button="left")
+                            sleepClickOrPressLong()
+                        utilsDesire.desire()
+                        sleepCommonProcess()
+                    return
+
+            if need_chaos:
+                if need_chaos_all_class or config["characters"][states["currentCharacter"]]["class"] in classes_stance:
+                    if chaosEnter(states["currentCharacter"]):
+                        if not chaosCombat(states["currentCharacter"]):
+                            if states["currentCharacter"] not in states["chaosTimeoutCnt"]:
+                                states["chaosTimeoutCnt"][states["currentCharacter"]] = 1
+                            else:
+                                states["chaosTimeoutCnt"][states["currentCharacter"]] += 1
+            states["multiCharacterModeState"][states["currentCharacter"]] -= 1
+
+            sleepCommonProcess()
+
+            if states["multiCharacterModeState"][states["currentCharacter"]] <= 0:
+                if need_repair:
+                    doRepairMasyaf()
+                if need_disenchant:
+                    doDisenchant()
+                if need_sort_bag:
+                    doSortBag()
+                if need_buy_potion:
+                    doBuypotion()
+                logging.info("[角色]: <" + str(states["currentCharacter"]+1) + ">: " + "[混沌地牢]: {结束}")
+
+                chaos_quest_done = pyautogui.locateCenterOnScreen(
+                    "./screenshots/chaos-quest-done.png",
+                    region=config["regions"]["whole-game"],
+                    confidence=0.9,
+                    grayscale=True
+                )
+                if chaos_quest_done != None:
+                    x, y = chaos_quest_done
+                    sleepClickOrPress()
+                    mouseMoveTo(x=x, y=y)
+                    sleepClickOrPress()
+                    pydirectinput.click(x=x, y=y, button="left")
+                    sleepClickOrPress()
+                    chaos_quest_done_confirm = pyautogui.locateCenterOnScreen(
+                        "./screenshots/chaos-quest-done-confirm.png",
+                        region=config["regions"]["whole-game"],
+                        confidence=0.9,
+                        grayscale=True
+                    )
+                    if chaos_quest_done_confirm != None:
+                        x, y = chaos_quest_done_confirm
+                        sleepClickOrPress()
+                        mouseMoveTo(x=x, y=y)
+                        sleepClickOrPress()
+                        pydirectinput.click(x=x, y=y, button="left")
+                        sleepClickOrPress()
+                        logging.info("[角色]: <" + str(states["currentCharacter"]+1) + ">: " + "[混沌地牢]: {交任务}")
+
+    logging.info("------------------------------------")
+    logging.info("又是成功偷懒的快乐一天！！！")
+    logging.info("------------------------------------")
 
 #===========================================================================
 # Detail Action functions
@@ -741,7 +793,7 @@ def needDoWeeklyQuest():
             logging.info("[错误]: 周三已完成周常，不再做了")
             return False
     else:
-        logging.info("[错误]: 不是周三，不做周常")
+        #logging.info("[错误]: 不是周三，不做周常")
         update_status_value(config_file_path, 'need_do_weeklyQuest', True)
         return False
 

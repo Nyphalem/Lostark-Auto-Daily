@@ -14,8 +14,8 @@ key_list_common = ['q', 'r', 'w', 'e', 'a', 's', 'd', 'f']
 key_list_common_ult = ['q', 'r', 'w', 'e', 'a', 's', 'd', 'f', 'v']
 
 key_list_demonic = ['q', 'r', 'w', 'e', 'a', 's', 'd', 'f']
-key_list_demonic_z = ['q', 'r', 'w', 'e', 'a', 's']
-key_list_demonic_z_reverse = ['s', 'a', 'e', 'w', 'r', 'q']
+key_list_demonic_z = ['r', 'w', 'e', 'a', 's']
+key_list_demonic_z_reverse = ['s', 'a', 'e', 'w', 'r']
 
 key_list_process_cache = list()
 
@@ -57,14 +57,15 @@ def saveAbilitiesScreenshots(characterClass):
             sleepWink()
 
 
-def usbAbilitiesCommon(key_list):
+def usbAbilitiesCommon(key_list, characterClass):
     global key_list_process_cache
 
     logv("[ChaosDebug]: -> usbAbilitiesCommon()")
 
     avail_ability = True
 
-    pyautogui.mouseDown(button="right")
+    if characterClass != "holyknight":
+        pyautogui.mouseDown(button="right")
 
     if len(key_list_process_cache) == 0:
         key_list_process_cache = copy.copy(key_list)
@@ -87,7 +88,8 @@ def usbAbilitiesCommon(key_list):
                 logv("[ChaosDebug]: <- usbAbilitiesCommon() in cooldown")
                 avail_ability = False
 
-    pyautogui.mouseUp(button="right")
+    if characterClass != "holyknight":
+        pyautogui.mouseUp(button="right")
 
     logv("[ChaosDebug]: -> usbAbilitiesCommon() choose ability")
 
@@ -124,15 +126,15 @@ def useAbilities(key_list, characterClass):
 
     if characterClass == "bard":
         pydirectinput.press("x")
-        if usbAbilitiesCommon(key_list):
+        if usbAbilitiesCommon(key_list, characterClass):
             avail_ability = True
     if characterClass == "holyknight":
-        # TODO: check for enable z
+        # TODO: check for enable x
         if False:
-            pyautogui.keyDown("z")
+            pyautogui.keyDown("x")
             sleepClickOrPress()
-            pyautogui.keyUp("z")
-        if usbAbilitiesCommon(key_list):
+            pyautogui.keyUp("x")
+        if usbAbilitiesCommon(key_list, characterClass):
             avail_ability = True
     if characterClass == "demonic":
         z_full = pyautogui.locateCenterOnScreen(
@@ -157,14 +159,14 @@ def useAbilities(key_list, characterClass):
                 pyautogui.press(ability)
             avail_ability = True
         else:
-            if usbAbilitiesCommon(key_list_demonic):
+            if usbAbilitiesCommon(key_list_demonic, characterClass):
                 avail_ability = True
     if characterClass == "slayer":
         pydirectinput.press("z")
-        if usbAbilitiesCommon(key_list):
+        if usbAbilitiesCommon(key_list, characterClass):
             avail_ability = True
     if characterClass == "sorceress":
-        if usbAbilitiesCommon(key_list):
+        if usbAbilitiesCommon(key_list, characterClass):
             avail_ability = True
     if characterClass == "aeromancer":
         z_full = pyautogui.locateCenterOnScreen(
@@ -178,11 +180,10 @@ def useAbilities(key_list, characterClass):
             pyautogui.keyUp("z")
             avail_ability = True
         else:
-            if usbAbilitiesCommon(key_list):
+            if usbAbilitiesCommon(key_list, characterClass):
                 avail_ability = True
     if characterClass == "blade":
-        # TODO: tuning
-        if usbAbilitiesCommon(key_list):
+        if usbAbilitiesCommon(key_list, characterClass):
             avail_ability = True
 
     logv("[ChaosDebug]: <- useAbilities()")
@@ -226,7 +227,7 @@ def checkDeath():
     revive = pyautogui.locateCenterOnScreen(
         "./screenshots/chaos-revive.png",
         region=config["regions"]["whole-game"],
-        confidence=0.6
+        confidence=0.9
     )
     if revive != None:
         logv("[ChaosDebug]: -> DEATH")
@@ -386,7 +387,7 @@ def checkTimeout():
         chaosExit1 = pyautogui.locateCenterOnScreen(
             "./screenshots/chaos-exit1.png",
             region=config["regions"]["whole-game"],
-            confidence=0.7
+            confidence=0.9
         )
         if chaosExit1 != None:
             x, y = chaosExit1
@@ -397,7 +398,7 @@ def checkTimeout():
             chaosExit2 = pyautogui.locateCenterOnScreen(
                 "./screenshots/chaos-exit2.png",
                 region=config["regions"]["whole-game"],
-                confidence=0.7
+                confidence=0.9
             )
             if chaosExit2 != None:
                 x, y = chaosExit2
@@ -480,7 +481,7 @@ def calculateMinimapRelative(x, y, tiny=False):
     y = y - selfTop
 
     if not tiny:
-        dist = 300
+        dist = config["clickableAreaX"]
     else:
         dist = 20
     if y < 0:
@@ -527,7 +528,7 @@ def clickTower():
     )
     if riftCore1 != None:
         x, y = riftCore1
-        if y > 650 or x < 400 or x > 1500:
+        if y > 650 or x < 400 or x > 1200:
             return
         click_x = x
         click_y = y + 190
@@ -551,7 +552,7 @@ def clickTower():
         )
         if riftCore2 != None:
             x, y = riftCore2
-            if y > 650 or x < 400 or x > 1500:
+            if y > 650 or x < 400 or x > 1200:
                 return
             click_x = x
             click_y = y + 190
@@ -589,7 +590,6 @@ def checkMob(move=True):
         else:
             realX, realY = calculateMinimapRelative(x, y)
             pydirectinput.click(x=realX, y=realY, button="left")
-            sleepClickOrPress()
             mouseMoveTo(x=config["screenCenterX"], y=config["screenCenterY"])
             logv("[ChaosDebug]: -> MOB MOVED!!!")
         return True
@@ -645,7 +645,7 @@ def combatInFloor():
     prepareUltCnt = 0
     bossModeCnt = 0
     moveCnt = 0
-    findTowerCnt = 0
+    findTowerCnt = 1
     breakTowerCnt = 0
     findFirstTower = False
 
@@ -702,7 +702,7 @@ def combatInFloor():
 
             useAbilities(key_list_common, characters[characterIndex]["class"])
 
-    logging.info("[角色]: <" + str(characterIndex+1) + ">: " + "[混沌地牢]: {第一层结束}")
+    logging.info("[角色]: <" + str(characterIndex+1) + ">: " + "[混沌地牢]: {初期流程结束}")
 
     while (1):
         prepareUltCnt += 1
@@ -759,6 +759,8 @@ def combatInFloor():
                 bossModeCnt += 1
         if checkBossToAwk():
             bossModeCnt += 1
+        if not checkBossToAwk() and bossModeCnt > 0:
+            bossModeCnt = -1
 
         # Tower
         x, y = checkTower()
@@ -775,10 +777,28 @@ def combatInFloor():
 
             mouseMoveTo(x=config["screenCenterX"], y=config["screenCenterY"])
 
-            if findTowerCnt == 3:
+            if findTowerCnt % 3 == 0:
                 randomMove()
-                findTowerCnt = 0
+            if findTowerCnt % 20 == 0:
+                if findTowerCnt % 80 == 20:
+                    x = config["screenCenterX"] + 200
+                    y = config["screenCenterY"] + 200
+                    pydirectinput.click(x=x, y=y, button="left")
+                elif findTowerCnt % 80 == 40:
+                    x = config["screenCenterX"] - 200
+                    y = config["screenCenterY"] - 200
+                    pydirectinput.click(x=x, y=y, button="left")
+                elif findTowerCnt % 80 == 60:
+                    x = config["screenCenterX"] + 200
+                    y = config["screenCenterY"] - 200
+                    pydirectinput.click(x=x, y=y, button="left")
+                elif findTowerCnt % 80 == 0:
+                    x = config["screenCenterX"] - 200
+                    y = config["screenCenterY"] + 200
+                    pydirectinput.click(x=x, y=y, button="left")
             skipAblities = True
+        else:
+            findTowerCnt = 1
 
         if breakTowerCnt > 0:
             breakTowerCnt -= 1
@@ -790,11 +810,13 @@ def combatInFloor():
             if bossModeCnt == 0 and not checkTimeTooLong():
                 if not checkMob(False):
                     randomMouseMove()
+            elif bossModeCnt > 0:
+                mouseMoveTo(x=config["screenCenterX"], y=config["screenCenterY"])
             else:
                 if breakTowerCnt <= 0: # 0 for before find first tower, -1 for after found tower and click tower 5 times
                     if not checkMob():
                         moveCnt += 1
-                        if moveCnt == 5:
+                        if moveCnt == 10:
                             randomMove()
                             moveCnt = 0
                 pyautogui.press(config["awakening"])
@@ -802,13 +824,13 @@ def combatInFloor():
             useAbilities(key_list_common, characters[characterIndex]["class"])
 
         if prepareUltCnt >= 30:
-            if checkTimeout() == "TIMEOUT":
-                sleepTransportLoading()
-                return "TIMEOUT"
-
             if checkChaosFinish():
                 sleepTransportLoading()
                 return
+
+            if checkTimeout() == "TIMEOUT":
+                sleepTransportLoading()
+                return "TIMEOUT"
 
 
 def chaosCombat(index):
